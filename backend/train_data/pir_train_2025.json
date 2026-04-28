@@ -1,0 +1,2167 @@
+﻿[
+    {
+        "customer_id":  "cust_001",
+        "items":  [
+                      "item_108",
+                      "item_014",
+                      "item_061"
+                  ]
+    },
+    {
+        "customer_id":  "cust_002",
+        "items":  [
+                      "item_103",
+                      "item_073"
+                  ]
+    },
+    {
+        "customer_id":  "cust_003",
+        "items":  [
+                      "item_092",
+                      "item_108",
+                      "item_103",
+                      "item_028",
+                      "item_002",
+                      "item_029",
+                      "item_018",
+                      "item_019"
+                  ]
+    },
+    {
+        "customer_id":  "cust_004",
+        "items":  [
+                      "item_052",
+                      "item_087",
+                      "item_013",
+                      "item_099",
+                      "item_076"
+                  ]
+    },
+    {
+        "customer_id":  "cust_005",
+        "items":  [
+                      "item_044",
+                      "item_033",
+                      "item_043",
+                      "item_040"
+                  ]
+    },
+    {
+        "customer_id":  "cust_006",
+        "items":  [
+                      "item_054",
+                      "item_089",
+                      "item_005",
+                      "item_116",
+                      "item_074",
+                      "item_114"
+                  ]
+    },
+    {
+        "customer_id":  "cust_007",
+        "items":  [
+                      "item_016",
+                      "item_077",
+                      "item_069",
+                      "item_048",
+                      "item_057",
+                      "item_105"
+                  ]
+    },
+    {
+        "customer_id":  "cust_008",
+        "items":  [
+                      "item_113",
+                      "item_100",
+                      "item_062",
+                      "item_037"
+                  ]
+    },
+    {
+        "customer_id":  "cust_009",
+        "items":  [
+                      "item_058",
+                      "item_041"
+                  ]
+    },
+    {
+        "customer_id":  "cust_010",
+        "items":  [
+                      "item_081",
+                      "item_112",
+                      "item_114",
+                      "item_104"
+                  ]
+    },
+    {
+        "customer_id":  "cust_011",
+        "items":  [
+                      "item_093",
+                      "item_037",
+                      "item_071",
+                      "item_050"
+                  ]
+    },
+    {
+        "customer_id":  "cust_012",
+        "items":  [
+                      "item_013",
+                      "item_029",
+                      "item_031",
+                      "item_118",
+                      "item_033"
+                  ]
+    },
+    {
+        "customer_id":  "cust_013",
+        "items":  [
+                      "item_001",
+                      "item_076",
+                      "item_105",
+                      "item_092",
+                      "item_106"
+                  ]
+    },
+    {
+        "customer_id":  "cust_014",
+        "items":  [
+                      "item_039",
+                      "item_003",
+                      "item_090",
+                      "item_010",
+                      "item_059",
+                      "item_046",
+                      "item_073"
+                  ]
+    },
+    {
+        "customer_id":  "cust_015",
+        "items":  [
+                      "item_005",
+                      "item_038",
+                      "item_064",
+                      "item_087",
+                      "item_103"
+                  ]
+    },
+    {
+        "customer_id":  "cust_016",
+        "items":  [
+                      "item_073",
+                      "item_052",
+                      "item_120",
+                      "item_042",
+                      "item_024",
+                      "item_028"
+                  ]
+    },
+    {
+        "customer_id":  "cust_017",
+        "items":  [
+                      "item_068",
+                      "item_043",
+                      "item_071",
+                      "item_003",
+                      "item_012"
+                  ]
+    },
+    {
+        "customer_id":  "cust_018",
+        "items":  [
+                      "item_043",
+                      "item_010",
+                      "item_024",
+                      "item_118"
+                  ]
+    },
+    {
+        "customer_id":  "cust_019",
+        "items":  [
+                      "item_109",
+                      "item_115",
+                      "item_028",
+                      "item_102"
+                  ]
+    },
+    {
+        "customer_id":  "cust_020",
+        "items":  [
+                      "item_048",
+                      "item_112",
+                      "item_103",
+                      "item_059",
+                      "item_053"
+                  ]
+    },
+    {
+        "customer_id":  "cust_021",
+        "items":  [
+                      "item_042",
+                      "item_023",
+                      "item_117",
+                      "item_039",
+                      "item_050",
+                      "item_073"
+                  ]
+    },
+    {
+        "customer_id":  "cust_022",
+        "items":  [
+                      "item_077",
+                      "item_049"
+                  ]
+    },
+    {
+        "customer_id":  "cust_023",
+        "items":  [
+                      "item_011",
+                      "item_053",
+                      "item_076",
+                      "item_027",
+                      "item_015",
+                      "item_036",
+                      "item_032"
+                  ]
+    },
+    {
+        "customer_id":  "cust_024",
+        "items":  [
+                      "item_055",
+                      "item_104"
+                  ]
+    },
+    {
+        "customer_id":  "cust_025",
+        "items":  [
+                      "item_119",
+                      "item_067",
+                      "item_094"
+                  ]
+    },
+    {
+        "customer_id":  "cust_026",
+        "items":  [
+                      "item_018",
+                      "item_066",
+                      "item_005",
+                      "item_078",
+                      "item_021"
+                  ]
+    },
+    {
+        "customer_id":  "cust_027",
+        "items":  [
+                      "item_032",
+                      "item_033",
+                      "item_015"
+                  ]
+    },
+    {
+        "customer_id":  "cust_028",
+        "items":  [
+                      "item_001",
+                      "item_069",
+                      "item_077",
+                      "item_096"
+                  ]
+    },
+    {
+        "customer_id":  "cust_029",
+        "items":  [
+                      "item_014",
+                      "item_017",
+                      "item_089",
+                      "item_072",
+                      "item_082"
+                  ]
+    },
+    {
+        "customer_id":  "cust_030",
+        "items":  [
+                      "item_069",
+                      "item_114",
+                      "item_034",
+                      "item_025",
+                      "item_098",
+                      "item_087",
+                      "item_092",
+                      "item_115"
+                  ]
+    },
+    {
+        "customer_id":  "cust_031",
+        "items":  [
+                      "item_062",
+                      "item_015",
+                      "item_099",
+                      "item_092"
+                  ]
+    },
+    {
+        "customer_id":  "cust_032",
+        "items":  [
+                      "item_104",
+                      "item_003",
+                      "item_091",
+                      "item_073",
+                      "item_059",
+                      "item_078"
+                  ]
+    },
+    {
+        "customer_id":  "cust_033",
+        "items":  [
+                      "item_008",
+                      "item_054",
+                      "item_020",
+                      "item_095"
+                  ]
+    },
+    {
+        "customer_id":  "cust_034",
+        "items":  [
+                      "item_081",
+                      "item_095",
+                      "item_015",
+                      "item_044",
+                      "item_022",
+                      "item_065"
+                  ]
+    },
+    {
+        "customer_id":  "cust_035",
+        "items":  [
+                      "item_070",
+                      "item_027",
+                      "item_062",
+                      "item_057",
+                      "item_052"
+                  ]
+    },
+    {
+        "customer_id":  "cust_036",
+        "items":  [
+                      "item_068",
+                      "item_043",
+                      "item_098",
+                      "item_074",
+                      "item_055",
+                      "item_025"
+                  ]
+    },
+    {
+        "customer_id":  "cust_037",
+        "items":  [
+                      "item_024",
+                      "item_080",
+                      "item_047",
+                      "item_069"
+                  ]
+    },
+    {
+        "customer_id":  "cust_038",
+        "items":  [
+                      "item_084",
+                      "item_094",
+                      "item_051",
+                      "item_080"
+                  ]
+    },
+    {
+        "customer_id":  "cust_039",
+        "items":  [
+                      "item_050",
+                      "item_003",
+                      "item_082",
+                      "item_102",
+                      "item_072",
+                      "item_020",
+                      "item_038"
+                  ]
+    },
+    {
+        "customer_id":  "cust_040",
+        "items":  [
+                      "item_099",
+                      "item_046",
+                      "item_017"
+                  ]
+    },
+    {
+        "customer_id":  "cust_041",
+        "items":  [
+                      "item_118",
+                      "item_071",
+                      "item_010",
+                      "item_097",
+                      "item_068"
+                  ]
+    },
+    {
+        "customer_id":  "cust_042",
+        "items":  [
+                      "item_007",
+                      "item_120",
+                      "item_099",
+                      "item_066",
+                      "item_035"
+                  ]
+    },
+    {
+        "customer_id":  "cust_043",
+        "items":  [
+                      "item_041",
+                      "item_102",
+                      "item_058",
+                      "item_064",
+                      "item_036",
+                      "item_109"
+                  ]
+    },
+    {
+        "customer_id":  "cust_044",
+        "items":  [
+                      "item_016",
+                      "item_026",
+                      "item_041",
+                      "item_072"
+                  ]
+    },
+    {
+        "customer_id":  "cust_045",
+        "items":  [
+                      "item_030",
+                      "item_086",
+                      "item_038",
+                      "item_025"
+                  ]
+    },
+    {
+        "customer_id":  "cust_046",
+        "items":  [
+                      "item_074",
+                      "item_047",
+                      "item_086",
+                      "item_006",
+                      "item_024",
+                      "item_046"
+                  ]
+    },
+    {
+        "customer_id":  "cust_047",
+        "items":  [
+                      "item_080",
+                      "item_059",
+                      "item_039",
+                      "item_107",
+                      "item_110"
+                  ]
+    },
+    {
+        "customer_id":  "cust_048",
+        "items":  [
+                      "item_048",
+                      "item_013",
+                      "item_010",
+                      "item_054"
+                  ]
+    },
+    {
+        "customer_id":  "cust_049",
+        "items":  [
+                      "item_065",
+                      "item_036",
+                      "item_059"
+                  ]
+    },
+    {
+        "customer_id":  "cust_050",
+        "items":  [
+                      "item_067",
+                      "item_120",
+                      "item_070",
+                      "item_102",
+                      "item_003"
+                  ]
+    },
+    {
+        "customer_id":  "cust_051",
+        "items":  [
+                      "item_059",
+                      "item_093",
+                      "item_076",
+                      "item_050",
+                      "item_106"
+                  ]
+    },
+    {
+        "customer_id":  "cust_052",
+        "items":  [
+                      "item_042",
+                      "item_062",
+                      "item_075",
+                      "item_089",
+                      "item_104",
+                      "item_018"
+                  ]
+    },
+    {
+        "customer_id":  "cust_053",
+        "items":  [
+                      "item_079",
+                      "item_014",
+                      "item_025",
+                      "item_109",
+                      "item_011"
+                  ]
+    },
+    {
+        "customer_id":  "cust_054",
+        "items":  [
+                      "item_118",
+                      "item_040",
+                      "item_116"
+                  ]
+    },
+    {
+        "customer_id":  "cust_055",
+        "items":  [
+                      "item_048",
+                      "item_019",
+                      "item_045",
+                      "item_113",
+                      "item_117"
+                  ]
+    },
+    {
+        "customer_id":  "cust_056",
+        "items":  [
+                      "item_104",
+                      "item_102",
+                      "item_026"
+                  ]
+    },
+    {
+        "customer_id":  "cust_057",
+        "items":  [
+                      "item_071",
+                      "item_035",
+                      "item_113"
+                  ]
+    },
+    {
+        "customer_id":  "cust_058",
+        "items":  [
+                      "item_107",
+                      "item_100",
+                      "item_084",
+                      "item_089",
+                      "item_111",
+                      "item_004"
+                  ]
+    },
+    {
+        "customer_id":  "cust_059",
+        "items":  [
+                      "item_023",
+                      "item_062",
+                      "item_001",
+                      "item_054"
+                  ]
+    },
+    {
+        "customer_id":  "cust_060",
+        "items":  [
+                      "item_074",
+                      "item_114",
+                      "item_064",
+                      "item_037",
+                      "item_019",
+                      "item_105",
+                      "item_066",
+                      "item_078",
+                      "item_076",
+                      "item_034"
+                  ]
+    },
+    {
+        "customer_id":  "cust_061",
+        "items":  [
+                      "item_098",
+                      "item_035",
+                      "item_067"
+                  ]
+    },
+    {
+        "customer_id":  "cust_062",
+        "items":  [
+                      "item_089",
+                      "item_081",
+                      "item_062",
+                      "item_076"
+                  ]
+    },
+    {
+        "customer_id":  "cust_063",
+        "items":  [
+                      "item_046",
+                      "item_111",
+                      "item_063",
+                      "item_091",
+                      "item_012"
+                  ]
+    },
+    {
+        "customer_id":  "cust_064",
+        "items":  [
+                      "item_027",
+                      "item_101",
+                      "item_111"
+                  ]
+    },
+    {
+        "customer_id":  "cust_065",
+        "items":  [
+                      "item_063",
+                      "item_020",
+                      "item_040",
+                      "item_082",
+                      "item_094",
+                      "item_012"
+                  ]
+    },
+    {
+        "customer_id":  "cust_066",
+        "items":  [
+                      "item_020",
+                      "item_094",
+                      "item_064",
+                      "item_088",
+                      "item_017",
+                      "item_109",
+                      "item_103"
+                  ]
+    },
+    {
+        "customer_id":  "cust_067",
+        "items":  [
+                      "item_080",
+                      "item_079",
+                      "item_052"
+                  ]
+    },
+    {
+        "customer_id":  "cust_068",
+        "items":  [
+                      "item_074",
+                      "item_070",
+                      "item_109"
+                  ]
+    },
+    {
+        "customer_id":  "cust_069",
+        "items":  [
+                      "item_045",
+                      "item_095",
+                      "item_034",
+                      "item_083",
+                      "item_009"
+                  ]
+    },
+    {
+        "customer_id":  "cust_070",
+        "items":  [
+                      "item_058",
+                      "item_028",
+                      "item_054",
+                      "item_008",
+                      "item_087",
+                      "item_036"
+                  ]
+    },
+    {
+        "customer_id":  "cust_071",
+        "items":  [
+                      "item_024",
+                      "item_104",
+                      "item_055"
+                  ]
+    },
+    {
+        "customer_id":  "cust_072",
+        "items":  [
+                      "item_083",
+                      "item_029",
+                      "item_050",
+                      "item_012",
+                      "item_109",
+                      "item_101"
+                  ]
+    },
+    {
+        "customer_id":  "cust_073",
+        "items":  [
+                      "item_101",
+                      "item_102",
+                      "item_001",
+                      "item_031"
+                  ]
+    },
+    {
+        "customer_id":  "cust_074",
+        "items":  [
+                      "item_015",
+                      "item_096",
+                      "item_047",
+                      "item_005"
+                  ]
+    },
+    {
+        "customer_id":  "cust_075",
+        "items":  [
+                      "item_063",
+                      "item_020",
+                      "item_043",
+                      "item_050"
+                  ]
+    },
+    {
+        "customer_id":  "cust_076",
+        "items":  [
+                      "item_098",
+                      "item_056",
+                      "item_086",
+                      "item_011",
+                      "item_091",
+                      "item_067"
+                  ]
+    },
+    {
+        "customer_id":  "cust_077",
+        "items":  [
+                      "item_097",
+                      "item_098",
+                      "item_065"
+                  ]
+    },
+    {
+        "customer_id":  "cust_078",
+        "items":  [
+                      "item_102",
+                      "item_076",
+                      "item_097",
+                      "item_115",
+                      "item_078"
+                  ]
+    },
+    {
+        "customer_id":  "cust_079",
+        "items":  [
+                      "item_061",
+                      "item_005",
+                      "item_060",
+                      "item_013",
+                      "item_115"
+                  ]
+    },
+    {
+        "customer_id":  "cust_080",
+        "items":  [
+                      "item_065",
+                      "item_035",
+                      "item_033",
+                      "item_077",
+                      "item_024",
+                      "item_063",
+                      "item_058",
+                      "item_027",
+                      "item_076"
+                  ]
+    },
+    {
+        "customer_id":  "cust_081",
+        "items":  [
+                      "item_051",
+                      "item_099",
+                      "item_103"
+                  ]
+    },
+    {
+        "customer_id":  "cust_082",
+        "items":  [
+                      "item_052",
+                      "item_007",
+                      "item_041",
+                      "item_054",
+                      "item_020"
+                  ]
+    },
+    {
+        "customer_id":  "cust_083",
+        "items":  [
+                      "item_034",
+                      "item_076",
+                      "item_119"
+                  ]
+    },
+    {
+        "customer_id":  "cust_084",
+        "items":  [
+                      "item_090",
+                      "item_011",
+                      "item_093",
+                      "item_044",
+                      "item_055",
+                      "item_013"
+                  ]
+    },
+    {
+        "customer_id":  "cust_085",
+        "items":  [
+                      "item_054",
+                      "item_114",
+                      "item_055",
+                      "item_098",
+                      "item_099",
+                      "item_077"
+                  ]
+    },
+    {
+        "customer_id":  "cust_086",
+        "items":  [
+                      "item_088",
+                      "item_049"
+                  ]
+    },
+    {
+        "customer_id":  "cust_087",
+        "items":  [
+                      "item_086",
+                      "item_067",
+                      "item_068"
+                  ]
+    },
+    {
+        "customer_id":  "cust_088",
+        "items":  [
+                      "item_058",
+                      "item_016",
+                      "item_024",
+                      "item_110",
+                      "item_004",
+                      "item_093"
+                  ]
+    },
+    {
+        "customer_id":  "cust_089",
+        "items":  [
+                      "item_010",
+                      "item_011",
+                      "item_029"
+                  ]
+    },
+    {
+        "customer_id":  "cust_090",
+        "items":  [
+                      "item_007",
+                      "item_064",
+                      "item_105",
+                      "item_111",
+                      "item_049"
+                  ]
+    },
+    {
+        "customer_id":  "cust_091",
+        "items":  [
+                      "item_019",
+                      "item_118",
+                      "item_111",
+                      "item_026",
+                      "item_053",
+                      "item_100"
+                  ]
+    },
+    {
+        "customer_id":  "cust_092",
+        "items":  [
+                      "item_035",
+                      "item_001",
+                      "item_074",
+                      "item_003",
+                      "item_012",
+                      "item_014"
+                  ]
+    },
+    {
+        "customer_id":  "cust_093",
+        "items":  [
+                      "item_116",
+                      "item_106",
+                      "item_026",
+                      "item_003",
+                      "item_044",
+                      "item_031",
+                      "item_028"
+                  ]
+    },
+    {
+        "customer_id":  "cust_094",
+        "items":  [
+                      "item_038",
+                      "item_102",
+                      "item_117"
+                  ]
+    },
+    {
+        "customer_id":  "cust_095",
+        "items":  [
+                      "item_081",
+                      "item_046",
+                      "item_043",
+                      "item_033",
+                      "item_020",
+                      "item_022"
+                  ]
+    },
+    {
+        "customer_id":  "cust_096",
+        "items":  [
+                      "item_055",
+                      "item_074",
+                      "item_018"
+                  ]
+    },
+    {
+        "customer_id":  "cust_097",
+        "items":  [
+                      "item_011",
+                      "item_006",
+                      "item_111"
+                  ]
+    },
+    {
+        "customer_id":  "cust_098",
+        "items":  [
+                      "item_099",
+                      "item_009",
+                      "item_054",
+                      "item_033"
+                  ]
+    },
+    {
+        "customer_id":  "cust_099",
+        "items":  [
+                      "item_022",
+                      "item_005",
+                      "item_056",
+                      "item_002",
+                      "item_116",
+                      "item_103",
+                      "item_037",
+                      "item_109",
+                      "item_023"
+                  ]
+    },
+    {
+        "customer_id":  "cust_100",
+        "items":  [
+                      "item_043",
+                      "item_046",
+                      "item_010",
+                      "item_090",
+                      "item_071"
+                  ]
+    },
+    {
+        "customer_id":  "cust_101",
+        "items":  [
+                      "item_018",
+                      "item_120",
+                      "item_039",
+                      "item_036",
+                      "item_071"
+                  ]
+    },
+    {
+        "customer_id":  "cust_102",
+        "items":  [
+                      "item_082",
+                      "item_022",
+                      "item_048",
+                      "item_103"
+                  ]
+    },
+    {
+        "customer_id":  "cust_103",
+        "items":  [
+                      "item_048",
+                      "item_037"
+                  ]
+    },
+    {
+        "customer_id":  "cust_104",
+        "items":  [
+                      "item_081",
+                      "item_048",
+                      "item_032",
+                      "item_082"
+                  ]
+    },
+    {
+        "customer_id":  "cust_105",
+        "items":  [
+                      "item_017",
+                      "item_107"
+                  ]
+    },
+    {
+        "customer_id":  "cust_106",
+        "items":  [
+                      "item_097",
+                      "item_050",
+                      "item_007",
+                      "item_091",
+                      "item_038"
+                  ]
+    },
+    {
+        "customer_id":  "cust_107",
+        "items":  [
+                      "item_084",
+                      "item_023",
+                      "item_041",
+                      "item_007",
+                      "item_047",
+                      "item_071",
+                      "item_070",
+                      "item_069",
+                      "item_056",
+                      "item_048"
+                  ]
+    },
+    {
+        "customer_id":  "cust_108",
+        "items":  [
+                      "item_029",
+                      "item_020",
+                      "item_021"
+                  ]
+    },
+    {
+        "customer_id":  "cust_109",
+        "items":  [
+                      "item_040",
+                      "item_030",
+                      "item_074",
+                      "item_109",
+                      "item_059"
+                  ]
+    },
+    {
+        "customer_id":  "cust_110",
+        "items":  [
+                      "item_066",
+                      "item_027",
+                      "item_036",
+                      "item_046",
+                      "item_012"
+                  ]
+    },
+    {
+        "customer_id":  "cust_111",
+        "items":  [
+                      "item_062",
+                      "item_110",
+                      "item_021",
+                      "item_075"
+                  ]
+    },
+    {
+        "customer_id":  "cust_112",
+        "items":  [
+                      "item_018",
+                      "item_003",
+                      "item_024",
+                      "item_046",
+                      "item_091"
+                  ]
+    },
+    {
+        "customer_id":  "cust_113",
+        "items":  [
+                      "item_023",
+                      "item_038",
+                      "item_009",
+                      "item_113",
+                      "item_064",
+                      "item_030"
+                  ]
+    },
+    {
+        "customer_id":  "cust_114",
+        "items":  [
+                      "item_011",
+                      "item_007",
+                      "item_110"
+                  ]
+    },
+    {
+        "customer_id":  "cust_115",
+        "items":  [
+                      "item_051",
+                      "item_096",
+                      "item_007",
+                      "item_078"
+                  ]
+    },
+    {
+        "customer_id":  "cust_116",
+        "items":  [
+                      "item_084",
+                      "item_086",
+                      "item_044"
+                  ]
+    },
+    {
+        "customer_id":  "cust_117",
+        "items":  [
+                      "item_056",
+                      "item_090",
+                      "item_087",
+                      "item_015",
+                      "item_091",
+                      "item_007"
+                  ]
+    },
+    {
+        "customer_id":  "cust_118",
+        "items":  [
+                      "item_046",
+                      "item_084",
+                      "item_019",
+                      "item_057",
+                      "item_083",
+                      "item_018"
+                  ]
+    },
+    {
+        "customer_id":  "cust_119",
+        "items":  [
+                      "item_070",
+                      "item_029",
+                      "item_043",
+                      "item_107"
+                  ]
+    },
+    {
+        "customer_id":  "cust_120",
+        "items":  [
+                      "item_049",
+                      "item_015",
+                      "item_116",
+                      "item_039"
+                  ]
+    },
+    {
+        "customer_id":  "cust_121",
+        "items":  [
+                      "item_110",
+                      "item_065",
+                      "item_097",
+                      "item_042",
+                      "item_106"
+                  ]
+    },
+    {
+        "customer_id":  "cust_122",
+        "items":  [
+                      "item_035",
+                      "item_111",
+                      "item_049",
+                      "item_029",
+                      "item_051",
+                      "item_048",
+                      "item_075",
+                      "item_079"
+                  ]
+    },
+    {
+        "customer_id":  "cust_123",
+        "items":  [
+                      "item_069",
+                      "item_011",
+                      "item_052",
+                      "item_071",
+                      "item_103",
+                      "item_100",
+                      "item_096",
+                      "item_023"
+                  ]
+    },
+    {
+        "customer_id":  "cust_124",
+        "items":  [
+                      "item_105",
+                      "item_025",
+                      "item_061",
+                      "item_073"
+                  ]
+    },
+    {
+        "customer_id":  "cust_125",
+        "items":  [
+                      "item_065",
+                      "item_013",
+                      "item_117",
+                      "item_111",
+                      "item_020"
+                  ]
+    },
+    {
+        "customer_id":  "cust_126",
+        "items":  [
+                      "item_027",
+                      "item_070",
+                      "item_073",
+                      "item_024",
+                      "item_083"
+                  ]
+    },
+    {
+        "customer_id":  "cust_127",
+        "items":  [
+                      "item_014",
+                      "item_033",
+                      "item_051",
+                      "item_087"
+                  ]
+    },
+    {
+        "customer_id":  "cust_128",
+        "items":  [
+                      "item_115",
+                      "item_079",
+                      "item_078",
+                      "item_035",
+                      "item_053"
+                  ]
+    },
+    {
+        "customer_id":  "cust_129",
+        "items":  [
+                      "item_063",
+                      "item_118",
+                      "item_105"
+                  ]
+    },
+    {
+        "customer_id":  "cust_130",
+        "items":  [
+                      "item_052",
+                      "item_099",
+                      "item_008",
+                      "item_092"
+                  ]
+    },
+    {
+        "customer_id":  "cust_131",
+        "items":  [
+                      "item_092",
+                      "item_071",
+                      "item_008",
+                      "item_064",
+                      "item_115"
+                  ]
+    },
+    {
+        "customer_id":  "cust_132",
+        "items":  [
+                      "item_088",
+                      "item_003"
+                  ]
+    },
+    {
+        "customer_id":  "cust_133",
+        "items":  [
+                      "item_070",
+                      "item_072",
+                      "item_092",
+                      "item_045",
+                      "item_063",
+                      "item_054"
+                  ]
+    },
+    {
+        "customer_id":  "cust_134",
+        "items":  [
+                      "item_009",
+                      "item_103",
+                      "item_033",
+                      "item_111",
+                      "item_035",
+                      "item_007",
+                      "item_099"
+                  ]
+    },
+    {
+        "customer_id":  "cust_135",
+        "items":  [
+                      "item_069",
+                      "item_058",
+                      "item_048",
+                      "item_047",
+                      "item_041",
+                      "item_067"
+                  ]
+    },
+    {
+        "customer_id":  "cust_136",
+        "items":  [
+                      "item_101",
+                      "item_071",
+                      "item_052",
+                      "item_053",
+                      "item_062",
+                      "item_011"
+                  ]
+    },
+    {
+        "customer_id":  "cust_137",
+        "items":  [
+                      "item_096",
+                      "item_045"
+                  ]
+    },
+    {
+        "customer_id":  "cust_138",
+        "items":  [
+                      "item_023",
+                      "item_002",
+                      "item_094",
+                      "item_072",
+                      "item_116",
+                      "item_065"
+                  ]
+    },
+    {
+        "customer_id":  "cust_139",
+        "items":  [
+                      "item_053",
+                      "item_067",
+                      "item_003",
+                      "item_007",
+                      "item_107",
+                      "item_111"
+                  ]
+    },
+    {
+        "customer_id":  "cust_140",
+        "items":  [
+                      "item_090",
+                      "item_036",
+                      "item_118"
+                  ]
+    },
+    {
+        "customer_id":  "cust_141",
+        "items":  [
+                      "item_021",
+                      "item_047",
+                      "item_058",
+                      "item_066",
+                      "item_072",
+                      "item_001"
+                  ]
+    },
+    {
+        "customer_id":  "cust_142",
+        "items":  [
+                      "item_023",
+                      "item_078",
+                      "item_099",
+                      "item_003",
+                      "item_069"
+                  ]
+    },
+    {
+        "customer_id":  "cust_143",
+        "items":  [
+                      "item_044",
+                      "item_034",
+                      "item_019",
+                      "item_004",
+                      "item_085"
+                  ]
+    },
+    {
+        "customer_id":  "cust_144",
+        "items":  [
+                      "item_040",
+                      "item_014",
+                      "item_060",
+                      "item_027"
+                  ]
+    },
+    {
+        "customer_id":  "cust_145",
+        "items":  [
+                      "item_118",
+                      "item_106",
+                      "item_026",
+                      "item_065",
+                      "item_077"
+                  ]
+    },
+    {
+        "customer_id":  "cust_146",
+        "items":  [
+                      "item_025",
+                      "item_057",
+                      "item_068",
+                      "item_098",
+                      "item_102",
+                      "item_106",
+                      "item_042"
+                  ]
+    },
+    {
+        "customer_id":  "cust_147",
+        "items":  [
+                      "item_085",
+                      "item_061",
+                      "item_099",
+                      "item_057",
+                      "item_094",
+                      "item_101"
+                  ]
+    },
+    {
+        "customer_id":  "cust_148",
+        "items":  [
+                      "item_063",
+                      "item_027",
+                      "item_105",
+                      "item_013",
+                      "item_003",
+                      "item_072"
+                  ]
+    },
+    {
+        "customer_id":  "cust_149",
+        "items":  [
+                      "item_055",
+                      "item_023",
+                      "item_002",
+                      "item_004",
+                      "item_118",
+                      "item_058",
+                      "item_014"
+                  ]
+    },
+    {
+        "customer_id":  "cust_150",
+        "items":  [
+                      "item_116",
+                      "item_072",
+                      "item_088",
+                      "item_004",
+                      "item_108"
+                  ]
+    },
+    {
+        "customer_id":  "cust_151",
+        "items":  [
+                      "item_036",
+                      "item_093"
+                  ]
+    },
+    {
+        "customer_id":  "cust_152",
+        "items":  [
+                      "item_034",
+                      "item_008",
+                      "item_048",
+                      "item_086",
+                      "item_068"
+                  ]
+    },
+    {
+        "customer_id":  "cust_153",
+        "items":  [
+                      "item_014",
+                      "item_041",
+                      "item_090",
+                      "item_003",
+                      "item_091",
+                      "item_061"
+                  ]
+    },
+    {
+        "customer_id":  "cust_154",
+        "items":  [
+                      "item_032",
+                      "item_024",
+                      "item_063",
+                      "item_099",
+                      "item_007",
+                      "item_041"
+                  ]
+    },
+    {
+        "customer_id":  "cust_155",
+        "items":  [
+                      "item_031",
+                      "item_075",
+                      "item_102",
+                      "item_025",
+                      "item_054",
+                      "item_074",
+                      "item_064"
+                  ]
+    },
+    {
+        "customer_id":  "cust_156",
+        "items":  [
+                      "item_023",
+                      "item_120",
+                      "item_103",
+                      "item_062",
+                      "item_029",
+                      "item_097"
+                  ]
+    },
+    {
+        "customer_id":  "cust_157",
+        "items":  [
+                      "item_101",
+                      "item_015",
+                      "item_042",
+                      "item_096",
+                      "item_108"
+                  ]
+    },
+    {
+        "customer_id":  "cust_158",
+        "items":  [
+                      "item_022",
+                      "item_068",
+                      "item_035",
+                      "item_034",
+                      "item_066",
+                      "item_077",
+                      "item_076"
+                  ]
+    },
+    {
+        "customer_id":  "cust_159",
+        "items":  [
+                      "item_006",
+                      "item_116",
+                      "item_081",
+                      "item_024",
+                      "item_025",
+                      "item_093",
+                      "item_011"
+                  ]
+    },
+    {
+        "customer_id":  "cust_160",
+        "items":  [
+                      "item_102",
+                      "item_012",
+                      "item_075",
+                      "item_010",
+                      "item_023",
+                      "item_049",
+                      "item_105"
+                  ]
+    },
+    {
+        "customer_id":  "cust_161",
+        "items":  [
+                      "item_072",
+                      "item_108",
+                      "item_119",
+                      "item_003"
+                  ]
+    },
+    {
+        "customer_id":  "cust_162",
+        "items":  [
+                      "item_018",
+                      "item_084",
+                      "item_069"
+                  ]
+    },
+    {
+        "customer_id":  "cust_163",
+        "items":  [
+                      "item_067",
+                      "item_097",
+                      "item_063"
+                  ]
+    },
+    {
+        "customer_id":  "cust_164",
+        "items":  [
+                      "item_007",
+                      "item_055",
+                      "item_059",
+                      "item_032"
+                  ]
+    },
+    {
+        "customer_id":  "cust_165",
+        "items":  [
+                      "item_038",
+                      "item_096",
+                      "item_080",
+                      "item_056",
+                      "item_020",
+                      "item_070",
+                      "item_112",
+                      "item_029",
+                      "item_026"
+                  ]
+    },
+    {
+        "customer_id":  "cust_166",
+        "items":  [
+                      "item_095",
+                      "item_118",
+                      "item_031"
+                  ]
+    },
+    {
+        "customer_id":  "cust_167",
+        "items":  [
+                      "item_080",
+                      "item_046",
+                      "item_116",
+                      "item_059",
+                      "item_120",
+                      "item_004"
+                  ]
+    },
+    {
+        "customer_id":  "cust_168",
+        "items":  [
+                      "item_042",
+                      "item_052",
+                      "item_120",
+                      "item_083",
+                      "item_040",
+                      "item_082"
+                  ]
+    },
+    {
+        "customer_id":  "cust_169",
+        "items":  [
+                      "item_010",
+                      "item_110",
+                      "item_044",
+                      "item_082",
+                      "item_120",
+                      "item_046",
+                      "item_065",
+                      "item_091"
+                  ]
+    },
+    {
+        "customer_id":  "cust_170",
+        "items":  [
+                      "item_119",
+                      "item_089",
+                      "item_063",
+                      "item_100",
+                      "item_015",
+                      "item_042",
+                      "item_035",
+                      "item_074"
+                  ]
+    },
+    {
+        "customer_id":  "cust_171",
+        "items":  [
+                      "item_052",
+                      "item_087",
+                      "item_038",
+                      "item_029",
+                      "item_035",
+                      "item_085",
+                      "item_005",
+                      "item_094"
+                  ]
+    },
+    {
+        "customer_id":  "cust_172",
+        "items":  [
+                      "item_059",
+                      "item_071",
+                      "item_062",
+                      "item_070",
+                      "item_063"
+                  ]
+    },
+    {
+        "customer_id":  "cust_173",
+        "items":  [
+                      "item_082",
+                      "item_117"
+                  ]
+    },
+    {
+        "customer_id":  "cust_174",
+        "items":  [
+                      "item_035",
+                      "item_100",
+                      "item_092",
+                      "item_095",
+                      "item_089",
+                      "item_094",
+                      "item_116",
+                      "item_072"
+                  ]
+    },
+    {
+        "customer_id":  "cust_175",
+        "items":  [
+                      "item_073",
+                      "item_001",
+                      "item_024",
+                      "item_029",
+                      "item_023",
+                      "item_074"
+                  ]
+    },
+    {
+        "customer_id":  "cust_176",
+        "items":  [
+                      "item_099",
+                      "item_078",
+                      "item_077",
+                      "item_119",
+                      "item_042",
+                      "item_062",
+                      "item_079"
+                  ]
+    },
+    {
+        "customer_id":  "cust_177",
+        "items":  [
+                      "item_113",
+                      "item_080"
+                  ]
+    },
+    {
+        "customer_id":  "cust_178",
+        "items":  [
+                      "item_088",
+                      "item_052",
+                      "item_020"
+                  ]
+    },
+    {
+        "customer_id":  "cust_179",
+        "items":  [
+                      "item_119",
+                      "item_075",
+                      "item_007",
+                      "item_079"
+                  ]
+    },
+    {
+        "customer_id":  "cust_180",
+        "items":  [
+                      "item_043",
+                      "item_032",
+                      "item_068",
+                      "item_044",
+                      "item_103",
+                      "item_013"
+                  ]
+    },
+    {
+        "customer_id":  "cust_181",
+        "items":  [
+                      "item_104",
+                      "item_053",
+                      "item_058",
+                      "item_048"
+                  ]
+    },
+    {
+        "customer_id":  "cust_182",
+        "items":  [
+                      "item_008",
+                      "item_085",
+                      "item_103",
+                      "item_052",
+                      "item_034",
+                      "item_080"
+                  ]
+    },
+    {
+        "customer_id":  "cust_183",
+        "items":  [
+                      "item_036",
+                      "item_074",
+                      "item_003",
+                      "item_045"
+                  ]
+    },
+    {
+        "customer_id":  "cust_184",
+        "items":  [
+                      "item_003",
+                      "item_051",
+                      "item_021",
+                      "item_117",
+                      "item_096"
+                  ]
+    },
+    {
+        "customer_id":  "cust_185",
+        "items":  [
+                      "item_108",
+                      "item_093",
+                      "item_101",
+                      "item_034",
+                      "item_082"
+                  ]
+    },
+    {
+        "customer_id":  "cust_186",
+        "items":  [
+                      "item_117",
+                      "item_026",
+                      "item_008",
+                      "item_067",
+                      "item_080"
+                  ]
+    },
+    {
+        "customer_id":  "cust_187",
+        "items":  [
+                      "item_017",
+                      "item_078",
+                      "item_063"
+                  ]
+    },
+    {
+        "customer_id":  "cust_188",
+        "items":  [
+                      "item_061",
+                      "item_106",
+                      "item_098",
+                      "item_056",
+                      "item_102"
+                  ]
+    },
+    {
+        "customer_id":  "cust_189",
+        "items":  [
+                      "item_071",
+                      "item_057",
+                      "item_093",
+                      "item_028",
+                      "item_033"
+                  ]
+    },
+    {
+        "customer_id":  "cust_190",
+        "items":  [
+                      "item_089",
+                      "item_034",
+                      "item_100",
+                      "item_063",
+                      "item_097",
+                      "item_115",
+                      "item_096",
+                      "item_007",
+                      "item_106"
+                  ]
+    },
+    {
+        "customer_id":  "cust_191",
+        "items":  [
+                      "item_073",
+                      "item_057",
+                      "item_037"
+                  ]
+    },
+    {
+        "customer_id":  "cust_192",
+        "items":  [
+                      "item_074",
+                      "item_078",
+                      "item_049",
+                      "item_112"
+                  ]
+    },
+    {
+        "customer_id":  "cust_193",
+        "items":  [
+                      "item_039",
+                      "item_019",
+                      "item_117"
+                  ]
+    },
+    {
+        "customer_id":  "cust_194",
+        "items":  [
+                      "item_034",
+                      "item_001",
+                      "item_085",
+                      "item_011"
+                  ]
+    },
+    {
+        "customer_id":  "cust_195",
+        "items":  [
+                      "item_041",
+                      "item_035",
+                      "item_114",
+                      "item_066",
+                      "item_072"
+                  ]
+    },
+    {
+        "customer_id":  "cust_196",
+        "items":  [
+                      "item_071",
+                      "item_010",
+                      "item_067",
+                      "item_081",
+                      "item_038",
+                      "item_085",
+                      "item_042",
+                      "item_112"
+                  ]
+    },
+    {
+        "customer_id":  "cust_197",
+        "items":  [
+                      "item_015",
+                      "item_044",
+                      "item_041",
+                      "item_013",
+                      "item_019"
+                  ]
+    },
+    {
+        "customer_id":  "cust_198",
+        "items":  [
+                      "item_030",
+                      "item_046",
+                      "item_101",
+                      "item_080"
+                  ]
+    },
+    {
+        "customer_id":  "cust_199",
+        "items":  [
+                      "item_026",
+                      "item_041",
+                      "item_073",
+                      "item_042",
+                      "item_034",
+                      "item_007"
+                  ]
+    },
+    {
+        "customer_id":  "cust_200",
+        "items":  [
+                      "item_020",
+                      "item_040",
+                      "item_052",
+                      "item_021",
+                      "item_039"
+                  ]
+    },
+    {
+        "customer_id":  "cust_201",
+        "items":  [
+                      "item_054",
+                      "item_019"
+                  ]
+    },
+    {
+        "customer_id":  "cust_202",
+        "items":  [
+                      "item_037",
+                      "item_101",
+                      "item_057",
+                      "item_113",
+                      "item_109"
+                  ]
+    },
+    {
+        "customer_id":  "cust_203",
+        "items":  [
+                      "item_081",
+                      "item_120",
+                      "item_071",
+                      "item_008"
+                  ]
+    },
+    {
+        "customer_id":  "cust_204",
+        "items":  [
+                      "item_048",
+                      "item_073",
+                      "item_013",
+                      "item_038",
+                      "item_096",
+                      "item_097",
+                      "item_099",
+                      "item_046",
+                      "item_079"
+                  ]
+    },
+    {
+        "customer_id":  "cust_205",
+        "items":  [
+                      "item_069",
+                      "item_035",
+                      "item_096",
+                      "item_075"
+                  ]
+    },
+    {
+        "customer_id":  "cust_206",
+        "items":  [
+                      "item_087",
+                      "item_047",
+                      "item_095",
+                      "item_103"
+                  ]
+    },
+    {
+        "customer_id":  "cust_207",
+        "items":  [
+                      "item_044",
+                      "item_014"
+                  ]
+    },
+    {
+        "customer_id":  "cust_208",
+        "items":  [
+                      "item_046",
+                      "item_052"
+                  ]
+    },
+    {
+        "customer_id":  "cust_209",
+        "items":  [
+                      "item_030",
+                      "item_086",
+                      "item_071",
+                      "item_100",
+                      "item_038"
+                  ]
+    },
+    {
+        "customer_id":  "cust_210",
+        "items":  [
+                      "item_105",
+                      "item_077",
+                      "item_045"
+                  ]
+    },
+    {
+        "customer_id":  "cust_211",
+        "items":  [
+                      "item_108",
+                      "item_103",
+                      "item_087",
+                      "item_022",
+                      "item_031",
+                      "item_053",
+                      "item_018"
+                  ]
+    },
+    {
+        "customer_id":  "cust_212",
+        "items":  [
+                      "item_016",
+                      "item_086",
+                      "item_027"
+                  ]
+    },
+    {
+        "customer_id":  "cust_213",
+        "items":  [
+                      "item_104",
+                      "item_073",
+                      "item_064",
+                      "item_058"
+                  ]
+    },
+    {
+        "customer_id":  "cust_214",
+        "items":  [
+                      "item_088",
+                      "item_030",
+                      "item_111",
+                      "item_064"
+                  ]
+    },
+    {
+        "customer_id":  "cust_215",
+        "items":  [
+                      "item_081",
+                      "item_035",
+                      "item_067",
+                      "item_117",
+                      "item_113",
+                      "item_049",
+                      "item_089",
+                      "item_032"
+                  ]
+    },
+    {
+        "customer_id":  "cust_216",
+        "items":  [
+                      "item_108",
+                      "item_064",
+                      "item_090"
+                  ]
+    },
+    {
+        "customer_id":  "cust_217",
+        "items":  [
+                      "item_027",
+                      "item_049",
+                      "item_038",
+                      "item_045"
+                  ]
+    },
+    {
+        "customer_id":  "cust_218",
+        "items":  [
+                      "item_116",
+                      "item_108",
+                      "item_109"
+                  ]
+    },
+    {
+        "customer_id":  "cust_219",
+        "items":  [
+                      "item_095",
+                      "item_113",
+                      "item_032",
+                      "item_043",
+                      "item_054",
+                      "item_004"
+                  ]
+    },
+    {
+        "customer_id":  "cust_220",
+        "items":  [
+                      "item_081",
+                      "item_022",
+                      "item_019"
+                  ]
+    }
+]
