@@ -101,3 +101,11 @@ class AdminSubmissionResponse(BaseModel):
 
 class AdminResetPasswordRequest(BaseModel):
     new_password: str = "12345678"
+
+
+class SubmissionLimitResponse(BaseModel):
+    submission_limit_per_day: int
+
+
+class UpdateSubmissionLimitRequest(BaseModel):
+    submission_limit_per_day: int

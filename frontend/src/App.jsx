@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { NavLink, Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { NavLink, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 
-import { getMyTeam, login } from "./services/api";
+import { getLeaderboardForecast, getLeaderboardPir, getMyTeam, login } from "./services/api";
 import AdminPage from "./pages/AdminPage";
 import DashboardPage from "./pages/DashboardPage";
 import DataPage from "./pages/DataPage";
@@ -13,7 +13,35 @@ import TeamPage from "./pages/TeamPage";
 
 function ProtectedLayout({ token, me, onLogout }) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const [submittedGroupCount, setSubmittedGroupCount] = useState(0);
   if (!token) return <Navigate to="/login" replace />;
+
+  useEffect(() => {
+    let mounted = true;
+    const loadCounts = async () => {
+      try {
+        const [pirRows, forecastRows] = await Promise.all([
+          getLeaderboardPir(),
+          getLeaderboardForecast(),
+        ]);
+        if (!mounted) return;
+        const names = new Set([
+          ...pirRows.map((row) => row.team_name),
+          ...forecastRows.map((row) => row.team_name),
+        ]);
+        setSubmittedGroupCount(names.size);
+      } catch (e) {
+        if (!mounted) return;
+        setSubmittedGroupCount(0);
+      }
+    };
+
+    loadCounts();
+    return () => {
+      mounted = false;
+    };
+  }, [location.pathname]);
 
   const navItems = [
     { to: "/", label: "Dashboard" },
@@ -65,7 +93,7 @@ function ProtectedLayout({ token, me, onLogout }) {
       <main className="content">
         <header className="content-head">
           <h1>{currentTitle}</h1>
-          <button className="primary-cta">Upload new file</button>
+          <button className="primary-cta" onClick={() => navigate("/submit")}>Upload new file</button>
         </header>
         <Routes>
           <Route path="/" element={<DashboardPage />} />
@@ -81,23 +109,23 @@ function ProtectedLayout({ token, me, onLogout }) {
         </Routes>
       </main>
       <aside className="right-rail">
-        <div className="search-box">Search your content</div>
+        <div className="search-box">Live challenge status</div>
         <h3>Statistic</h3>
         <div className="stat-card">
-          <p>Submissions this week</p>
-          <strong>69</strong>
+          <p>Your submissions today</p>
+          <strong>{me?.submissions_today ?? 0}</strong>
         </div>
         <div className="stat-card">
           <p>Remaining submissions today</p>
-          <strong>12</strong>
+          <strong>{me?.remaining_submissions_today ?? 0}</strong>
         </div>
         <div className="stat-card">
-          <p>Active teams</p>
-          <strong>17</strong>
+          <p>Groups already submitted</p>
+          <strong>{submittedGroupCount}</strong>
         </div>
         <div className="promo-box">
-          <p>Unlock better ranking now</p>
-          <small>Keep Precision@10 high and MAPE low to stay on top.</small>
+          <p>Scoring focus</p>
+          <small>PIR ranks by Precision@10. Forecast ranks by MAPE Sales (lower is better).</small>
         </div>
       </aside>
       </div>

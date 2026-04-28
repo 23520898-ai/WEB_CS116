@@ -130,6 +130,13 @@ Teams upload prediction files, the system evaluates in background, and leaderboa
   - precision_at_10 (primary leaderboard score)
   - map
 
+Scoring notes:
+
+- precision_at_10 = hits in top-10 / min(10, number of actual purchased items for that customer)
+- map = mean average precision across eligible customers
+- iou = |predicted set intersection actual set| / |predicted set union actual set|
+- reciprocal_rank_first_hit = 1 / rank of first correct predicted item
+
 ### Task 2 - Sale Forecasting
 
 - Submission format: CSV with columns location, item_id, prediction
@@ -142,6 +149,13 @@ Teams upload prediction files, the system evaluates in background, and leaderboa
   - mae_revenue
   - mape_sales (primary leaderboard score)
   - mape_revenue
+
+Scoring notes:
+
+- mae_sales = mean absolute error on quantity
+- pred_revenue is estimated by unit_price * prediction where unit_price = revenue / actual_qty for rows with actual_qty > 0
+- mae_revenue = mean absolute error on revenue
+- mape_sales is the primary leaderboard objective
 
 ### Leaderboard policy
 
@@ -220,6 +234,7 @@ Admin:
 - GET /api/admin/teams
 - GET /api/admin/submissions
 - POST /api/admin/teams/{team_id}/reset-password
+- POST /api/admin/ground-truth/{task}
 
 Data and health:
 
@@ -233,4 +248,7 @@ Data and health:
 - Submission files are stored in [backend/uploads](backend/uploads)
 - Public training data is in [backend/train_data](backend/train_data)
 - Database is auto-created and auto-migrated on startup
+- Ground truth upload formats:
+  - PIR: .json or .parquet
+  - Forecast: .csv or .parquet
 The standard mode is `python main.py` only.

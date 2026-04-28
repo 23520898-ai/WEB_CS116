@@ -12,7 +12,7 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 
 from backend.auth import create_access_token, get_current_user, get_db, verify_password
-from backend.database import DailyLimit, Leaderboard, Submission, Team, User, init_db
+from backend.database import AppSetting, DailyLimit, Leaderboard, Submission, Team, User, init_db
 from backend.security import hash_password
 from backend.schemas import (
     AdminResetPasswordRequest,
@@ -27,9 +27,11 @@ from backend.schemas import (
     TeamMeResponse,
     TeamMemberResponse,
     TeamProfileMember,
+    SubmissionLimitResponse,
+    UpdateSubmissionLimitRequest,
     UpdateTeamProfileRequest,
 )
-from backend.tasks import evaluate_submission_task, validate_submission_file
+from backend.tasks import evaluate_submission_task, validate_ground_truth_file, validate_submission_file
 
 BASE_DIR = Path(__file__).resolve().parent
 UPLOAD_DIR = BASE_DIR / "uploads"
@@ -37,7 +39,7 @@ TRAIN_DIR = BASE_DIR / "train_data"
 FRONTEND_DIST_DIR = BASE_DIR.parent / "frontend" / "dist"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
-SUBMISSION_LIMIT_PER_DAY = 3
+DEFAULT_SUBMISSION_LIMIT_PER_DAY = 3
 ALLOWED_TASKS = {"pir", "forecast"}
 
 app = FastAPI(
@@ -77,6 +79,33 @@ def _today_limit_row(db: Session, team_id: int) -> DailyLimit:
     return limit_row
 
 
+def _get_submission_limit(db: Session) -> int:
+    setting = db.query(AppSetting).filter(AppSetting.key == "submission_limit_per_day").first()
+    if not setting:
+        setting = AppSetting(key="submission_limit_per_day", value=str(DEFAULT_SUBMISSION_LIMIT_PER_DAY))
+        db.add(setting)
+        db.commit()
+        return DEFAULT_SUBMISSION_LIMIT_PER_DAY
+
+    try:
+        parsed = int(setting.value)
+        return parsed if parsed > 0 else DEFAULT_SUBMISSION_LIMIT_PER_DAY
+    except (TypeError, ValueError):
+        return DEFAULT_SUBMISSION_LIMIT_PER_DAY
+
+
+def _set_submission_limit(db: Session, value: int) -> int:
+    setting = db.query(AppSetting).filter(AppSetting.key == "submission_limit_per_day").first()
+    if not setting:
+        setting = AppSetting(key="submission_limit_per_day", value=str(value))
+        db.add(setting)
+    else:
+        setting.value = str(value)
+        setting.updated_at = datetime.utcnow()
+    db.commit()
+    return value
+
+
 def _current_submission_number(db: Session, team_id: int, task: str) -> int:
     last_submission = (
         db.query(Submission)
@@ -89,6 +118,10 @@ def _current_submission_number(db: Session, team_id: int, task: str) -> int:
 
 def _parse_metrics(metrics_json: str | None):
     if not metrics_json:
+        return None
+    try:
+        return json.loads(metrics_json)
+    except json.JSONDecodeError:
         return None
 
 
@@ -107,10 +140,6 @@ def _parse_member_profiles(member_profiles_json: str | None) -> List[TeamProfile
 def _require_admin(current_user: User) -> None:
     if current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Admin permission required")
-    try:
-        return json.loads(metrics_json)
-    except json.JSONDecodeError:
-        return None
 
 
 def _store_upload(file: UploadFile, task: str, team_id: int) -> Path:
@@ -125,6 +154,98 @@ def _store_upload(file: UploadFile, task: str, team_id: int) -> Path:
         shutil.copyfileobj(file.file, out)
 
     return path
+
+
+def _validate_dataset_file_content(path: Path) -> None:
+    suffix = path.suffix.lower()
+    if suffix == ".json":
+        with path.open("r", encoding="utf-8") as f:
+            json.load(f)
+        return
+    if suffix == ".csv":
+        # Quick parse check for csv format validity.
+        with path.open("r", encoding="utf-8") as f:
+            _ = f.readline()
+        return
+    if suffix == ".parquet":
+        # Ensure parquet file is readable.
+        import pandas as pd
+
+        pd.read_parquet(path)
+        return
+    raise ValueError("Unsupported file format")
+
+
+def _build_dataset_preview(path: Path) -> dict:
+    suffix = path.suffix.lower()
+
+    if suffix in {".csv", ".parquet"}:
+        import pandas as pd
+
+        if suffix == ".csv":
+            df = pd.read_csv(path)
+        else:
+            df = pd.read_parquet(path)
+
+        preview_rows = df.head(5).fillna("").to_dict(orient="records")
+        dtypes = {col: str(dtype) for col, dtype in df.dtypes.items()}
+        return {
+            "format": suffix.lstrip("."),
+            "row_count": int(len(df.index)),
+            "columns": list(df.columns),
+            "dtypes": dtypes,
+            "sample_rows": preview_rows,
+        }
+
+    if suffix == ".json":
+        with path.open("r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        if isinstance(data, dict):
+            keys = list(data.keys())
+            first_key = keys[0] if keys else None
+            first_value = data[first_key] if first_key is not None else None
+            return {
+                "format": "json",
+                "top_level_type": "object",
+                "entry_count": len(keys),
+                "sample_key": first_key,
+                "sample_value_type": type(first_value).__name__ if first_value is not None else None,
+            }
+
+        if isinstance(data, list):
+            first_value = data[0] if data else None
+            return {
+                "format": "json",
+                "top_level_type": "array",
+                "entry_count": len(data),
+                "sample_value_type": type(first_value).__name__ if first_value is not None else None,
+            }
+
+        return {
+            "format": "json",
+            "top_level_type": type(data).__name__,
+        }
+
+    return {"format": suffix.lstrip(".")}
+
+
+def _resolve_train_data_path(task: str) -> Path:
+    if task == "pir":
+        candidates = [
+            TRAIN_DIR / "pir_train_2025.json",
+            TRAIN_DIR / "pir_train_2025.parquet",
+        ]
+    else:
+        candidates = [
+            TRAIN_DIR / "forecast_train_2025.csv",
+            TRAIN_DIR / "forecast_train_2025.parquet",
+        ]
+
+    for path in candidates:
+        if path.exists():
+            return path
+    raise FileNotFoundError("Training file not found")
 
 
 @app.post("/api/auth/login", response_model=LoginResponse)
@@ -142,6 +263,7 @@ def get_team_me(current_user: User = Depends(get_current_user), db: Session = De
     team = db.query(Team).filter(Team.id == current_user.team_id).first()
     members = db.query(User).filter(User.team_id == current_user.team_id).all()
     limit_row = _today_limit_row(db, current_user.team_id)
+    submission_limit_per_day = _get_submission_limit(db)
 
     return TeamMeResponse(
         id=team.id,
@@ -151,9 +273,9 @@ def get_team_me(current_user: User = Depends(get_current_user), db: Session = De
         members=[TeamMemberResponse(username=m.username, role=m.role) for m in members],
         member_profiles=_parse_member_profiles(team.member_profiles_json),
         notes=team.notes or "",
-        submission_limit_per_day=SUBMISSION_LIMIT_PER_DAY,
+        submission_limit_per_day=submission_limit_per_day,
         submissions_today=limit_row.count,
-        remaining_submissions_today=max(0, SUBMISSION_LIMIT_PER_DAY - limit_row.count),
+        remaining_submissions_today=max(0, submission_limit_per_day - limit_row.count),
     )
 
 
@@ -190,6 +312,7 @@ def update_team_profile(
 
     members = db.query(User).filter(User.team_id == current_user.team_id).all()
     limit_row = _today_limit_row(db, current_user.team_id)
+    submission_limit_per_day = _get_submission_limit(db)
 
     return TeamMeResponse(
         id=team.id,
@@ -199,9 +322,9 @@ def update_team_profile(
         members=[TeamMemberResponse(username=m.username, role=m.role) for m in members],
         member_profiles=_parse_member_profiles(team.member_profiles_json),
         notes=team.notes or "",
-        submission_limit_per_day=SUBMISSION_LIMIT_PER_DAY,
+        submission_limit_per_day=submission_limit_per_day,
         submissions_today=limit_row.count,
-        remaining_submissions_today=max(0, SUBMISSION_LIMIT_PER_DAY - limit_row.count),
+        remaining_submissions_today=max(0, submission_limit_per_day - limit_row.count),
     )
 
 
@@ -210,7 +333,11 @@ def _leaderboard_response(task: str, db: Session) -> List[LeaderboardEntry]:
         db.query(Leaderboard, Team, Submission)
         .join(Team, Team.id == Leaderboard.team_id)
         .outerjoin(Submission, Submission.id == Leaderboard.best_submission_id)
-        .filter(Leaderboard.task == task, Team.is_active.is_(True))
+        .filter(
+            Leaderboard.task == task,
+            Team.is_active.is_(True),
+            Leaderboard.best_submission_id.is_not(None),
+        )
         .all()
     )
 
@@ -256,11 +383,12 @@ def _create_submission(
     if task not in ALLOWED_TASKS:
         raise HTTPException(status_code=400, detail="Unsupported task")
 
+    submission_limit_per_day = _get_submission_limit(db)
     limit_row = _today_limit_row(db, current_user.team_id)
-    if limit_row.count >= SUBMISSION_LIMIT_PER_DAY:
+    if limit_row.count >= submission_limit_per_day:
         raise HTTPException(
             status_code=429,
-            detail=f"Daily submission limit reached ({SUBMISSION_LIMIT_PER_DAY}/day).",
+            detail=f"Daily submission limit reached ({submission_limit_per_day}/day).",
         )
 
     if task == "pir" and not (file.filename or "").lower().endswith(".json"):
@@ -300,7 +428,7 @@ def _create_submission(
         status=submission.status,
         submission_number=submission.submission_number,
         submissions_today=limit_row.count,
-        remaining_submissions_today=max(0, SUBMISSION_LIMIT_PER_DAY - limit_row.count),
+        remaining_submissions_today=max(0, submission_limit_per_day - limit_row.count),
     )
 
 
@@ -381,6 +509,31 @@ def admin_list_teams(
     return result
 
 
+@app.get("/api/admin/settings/submission-limit", response_model=SubmissionLimitResponse)
+def admin_get_submission_limit(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    _require_admin(current_user)
+    return SubmissionLimitResponse(submission_limit_per_day=_get_submission_limit(db))
+
+
+@app.put("/api/admin/settings/submission-limit", response_model=SubmissionLimitResponse)
+def admin_update_submission_limit(
+    payload: UpdateSubmissionLimitRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    _require_admin(current_user)
+    if payload.submission_limit_per_day < 1:
+        raise HTTPException(status_code=400, detail="submission_limit_per_day must be >= 1")
+    if payload.submission_limit_per_day > 100:
+        raise HTTPException(status_code=400, detail="submission_limit_per_day must be <= 100")
+
+    updated = _set_submission_limit(db, payload.submission_limit_per_day)
+    return SubmissionLimitResponse(submission_limit_per_day=updated)
+
+
 @app.post("/api/admin/teams/{team_id}/reset-password")
 def admin_reset_team_password(
     team_id: int,
@@ -437,6 +590,130 @@ def admin_list_submissions(
     ]
 
 
+@app.post("/api/admin/ground-truth/{task}")
+def admin_upload_ground_truth(
+    task: str,
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+):
+    _require_admin(current_user)
+
+    if task not in ALLOWED_TASKS:
+        raise HTTPException(status_code=400, detail="Invalid task")
+
+    ext = Path(file.filename or "").suffix.lower()
+    allowed_ext = {".parquet"}
+    if task == "pir":
+        allowed_ext.add(".json")
+    if task == "forecast":
+        allowed_ext.add(".csv")
+
+    if ext not in allowed_ext:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unsupported ground truth format for task '{task}'. Allowed: {sorted(allowed_ext)}",
+        )
+
+    ground_truth_dir = BASE_DIR / "ground_truth"
+    ground_truth_dir.mkdir(parents=True, exist_ok=True)
+
+    if task == "pir":
+        target_stem = "pir_ground_truth_jan_2026"
+        removable = [".json", ".parquet"]
+    else:
+        target_stem = "forecast_ground_truth_jan_2026"
+        removable = [".csv", ".parquet"]
+
+    temp_path = ground_truth_dir / f"{target_stem}.uploading{ext}"
+    with temp_path.open("wb") as out:
+        shutil.copyfileobj(file.file, out)
+
+    try:
+        validate_ground_truth_file(task, str(temp_path))
+    except Exception as exc:
+        temp_path.unlink(missing_ok=True)
+        raise HTTPException(status_code=400, detail=f"Invalid ground truth file: {exc}") from exc
+
+    target_path = ground_truth_dir / f"{target_stem}{ext}"
+    for old_ext in removable:
+        old_path = ground_truth_dir / f"{target_stem}{old_ext}"
+        if old_path.exists() and old_path != target_path:
+            old_path.unlink(missing_ok=True)
+
+    if target_path.exists():
+        target_path.unlink(missing_ok=True)
+    temp_path.replace(target_path)
+
+    return {
+        "detail": "Ground truth uploaded successfully",
+        "task": task,
+        "file": target_path.name,
+    }
+
+
+@app.post("/api/admin/train-data/{task}")
+def admin_upload_train_data(
+    task: str,
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+):
+    _require_admin(current_user)
+
+    if task not in ALLOWED_TASKS:
+        raise HTTPException(status_code=400, detail="Invalid task")
+
+    ext = Path(file.filename or "").suffix.lower()
+    allowed_ext = {".parquet"}
+    if task == "pir":
+        allowed_ext.add(".json")
+    if task == "forecast":
+        allowed_ext.add(".csv")
+
+    if ext not in allowed_ext:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unsupported train data format for task '{task}'. Allowed: {sorted(allowed_ext)}",
+        )
+
+    TRAIN_DIR.mkdir(parents=True, exist_ok=True)
+
+    if task == "pir":
+        target_stem = "pir_train_2025"
+        removable = [".json", ".parquet"]
+    else:
+        target_stem = "forecast_train_2025"
+        removable = [".csv", ".parquet"]
+
+    temp_path = TRAIN_DIR / f"{target_stem}.uploading{ext}"
+    with temp_path.open("wb") as out:
+        shutil.copyfileobj(file.file, out)
+
+    try:
+        _validate_dataset_file_content(temp_path)
+    except Exception as exc:
+        temp_path.unlink(missing_ok=True)
+        raise HTTPException(status_code=400, detail=f"Invalid train data file: {exc}") from exc
+
+    target_path = TRAIN_DIR / f"{target_stem}{ext}"
+    for old_ext in removable:
+        old_path = TRAIN_DIR / f"{target_stem}{old_ext}"
+        if old_path.exists() and old_path != target_path:
+            old_path.unlink(missing_ok=True)
+
+    if target_path.exists():
+        target_path.unlink(missing_ok=True)
+    temp_path.replace(target_path)
+
+    preview = _build_dataset_preview(target_path)
+
+    return {
+        "detail": "Train data uploaded successfully",
+        "task": task,
+        "file": target_path.name,
+        "preview": preview,
+    }
+
+
 @app.get("/api/submissions/{submission_id}/file")
 def download_submission_file(
     submission_id: int,
@@ -457,13 +734,10 @@ def download_train_data(task: str):
     if task not in ALLOWED_TASKS:
         raise HTTPException(status_code=400, detail="Invalid task")
 
-    if task == "pir":
-        path = TRAIN_DIR / "pir_train_2025.json"
-    else:
-        path = TRAIN_DIR / "forecast_train_2025.csv"
-
-    if not path.exists():
-        raise HTTPException(status_code=404, detail="Training file not found")
+    try:
+        path = _resolve_train_data_path(task)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="Training file not found") from exc
     return FileResponse(str(path), filename=path.name)
 
 

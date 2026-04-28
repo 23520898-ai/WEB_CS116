@@ -104,6 +104,15 @@ class Leaderboard(Base):
     __table_args__ = (UniqueConstraint("team_id", "task", name="uix_team_task"),)
 
 
+class AppSetting(Base):
+    __tablename__ = "app_settings"
+
+    id = Column(Integer, primary_key=True)
+    key = Column(String, unique=True, nullable=False)
+    value = Column(String, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+
 def init_db() -> None:
     Base.metadata.create_all(bind=engine)
     _ensure_schema_migrations()
@@ -216,6 +225,13 @@ def seed_data() -> None:
                     )
                 )
         db.commit()
+
+        submission_limit_setting = (
+            db.query(AppSetting).filter(AppSetting.key == "submission_limit_per_day").first()
+        )
+        if not submission_limit_setting:
+            db.add(AppSetting(key="submission_limit_per_day", value="3"))
+            db.commit()
     except Exception:
         db.rollback()
         raise

@@ -6,3 +6,4 @@ python-jose[cryptography]==3.5.0
 passlib[bcrypt]==1.7.4
 bcrypt==4.0.1
 pandas==2.3.1
+pyarrow==18.1.0

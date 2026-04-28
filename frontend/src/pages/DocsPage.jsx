@@ -1,43 +1,50 @@
 function DocsPage() {
   return (
     <section className="panel docs-panel">
-      <h2>Huong Dan Su Dung Nen Tang</h2>
+      <h2>Platform User Guide</h2>
 
-      <h3>1. Tai Khoan Nhom</h3>
+      <h3>1. Team Accounts</h3>
       <ul>
-        <li>He thong tao san 20 nhom: NHOM01 den NHOM20.</li>
-        <li>Moi nhom dung chung 1 tai khoan, mat khau mac dinh: 12345678.</li>
-        <li>Sau lan dang nhap dau, vao trang Team de doi mat khau va cap nhat thong tin thanh vien.</li>
+        <li>The system pre-generated 20 teams: NHOM01 to NHOM20.</li>
+        <li>Each team shares one account; default password: 12345678.</li>
+        <li>After the first login, go to the Team page to change your password and update member information.</li>
       </ul>
 
-      <h3>2. Task 1 - PIR</h3>
+      <h3>2. Task 1 - PIR (Personalized Item Recommendation)</h3>
       <ul>
-        <li>Dau vao nop: JSON dictionary customer_id - list item_id de goi y.</li>
-        <li>Train data: nam 2025. Test blind: thang 01/2026 voi event purchased.</li>
-        <li>Metrics hien thi minh bach: total_correct_recommendations, iou, reciprocal_rank_first_hit, precision_at_10, map.</li>
-        <li>Danh gia tren cac customer co phat sinh giao dich purchased, bao gom ca user moi (cold start).</li>
+        <li>Submission format: JSON dictionary mapping `customer_id` to a list of recommended `item_id`.</li>
+        <li>Training data: Year 2025. Blind test: January 2026 "purchased" events.</li>
+        <li>Transparent metrics: `total_correct_recommendations`, `iou`, `reciprocal_rank_first_hit`, `precision_at_10`, and `map`.</li>
+        <li>Evaluation is based on customers with "purchased" transactions, including new users (cold start).</li>
+        <li>Formula: precision_at_10 = (correct items in top 10) / min(10, actual items of that user).</li>
+        <li>MAP is the Mean Average Precision per customer; AP is the average precision at each hit position.</li>
+        <li>IoU = |predict intersection actual| / |predict union actual|; reciprocal_rank_first_hit = 1 / rank of first hit.</li>
       </ul>
 
-      <h3>3. Task 2 - Sale Forecasting</h3>
+      <h3>3. Task 2 - Sales Forecasting</h3>
       <ul>
-        <li>Dau vao nop: CSV gom 3 cot location, item_id, prediction.</li>
-        <li>Train data: nam 2025. Test blind: thang 01/2026 voi event purchased.</li>
-        <li>Metrics: mae_sales, mae_revenue, mape_sales, mape_revenue.</li>
-        <li>Chi tinh tren location co phat sinh giao dich; bo qua mat hang co sale_status = 0.</li>
+        <li>Submission format: CSV file with 3 columns: `location`, `item_id`, and `prediction`.</li>
+        <li>Training data: Year 2025. Blind test: January 2026 "purchased" events.</li>
+        <li>Metrics: `mae_sales`, `mae_revenue`, `mape_sales`, `mape_revenue`.</li>
+        <li>Only calculated for locations with transactions; items with `sale_status = 0` are ignored.</li>
+        <li>MAE sales = mean(|actual_qty - prediction|).</li>
+        <li>MAE revenue = mean(|revenue - pred_revenue|), where pred_revenue = prediction x unit_price.</li>
+        <li>MAPE sales is the primary ranking metric; MAPE revenue is for additional reference.</li>
       </ul>
 
-      <h3>4. Leaderboard va Minh Bach Diem</h3>
+      <h3>4. Leaderboard and Scoring Transparency</h3>
       <ul>
-        <li>Leaderboard chi so sanh diem giua cac nhom NHOM01..NHOM20.</li>
-        <li>Khong cong bo du lieu ground truth cho nguoi dung.</li>
-        <li>Moi bai nop deu luu lich su metrics de doi chieu ro rang trong trang History.</li>
+        <li>The leaderboard only compares scores between teams NHOM01 to NHOM20.</li>
+        <li>Ground truth data is not disclosed to users.</li>
+        <li>Every submission stores a metrics history for clear comparison on the History page.</li>
       </ul>
 
-      <h3>5. Huong Dan Admin</h3>
+      <h3>5. Admin Instructions</h3>
       <ul>
-        <li>Admin co the xem danh sach nhom, thong tin thanh vien va lich su nop bai cua toan he thong.</li>
-        <li>Admin co the reset mat khau tai khoan nhom ve mat khau moi (mac dinh khuyen nghi: 12345678).</li>
-        <li>API tai lieu ky thuat cua backend dat tai duong dan /api/docs.</li>
+        <li>Admins can configure the maximum number of submissions per team per day.</li>
+        <li>Admins can re-upload ground truth files via the Admin page.</li>
+        <li>Supported ground truth formats: PIR (.json, .parquet), Forecast (.csv, .parquet).</li>
+        <li>Technical backend API documentation is available at the `/api/docs` path.</li>
       </ul>
     </section>
   );

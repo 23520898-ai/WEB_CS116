@@ -121,12 +121,53 @@ export function adminGetSubmissions(token) {
   return request("/api/admin/submissions", {}, token);
 }
 
+export function adminGetSubmissionLimit(token) {
+  return request("/api/admin/settings/submission-limit", {}, token);
+}
+
 export function adminResetTeamPassword(teamId, newPassword, token) {
   return request(
     `/api/admin/teams/${teamId}/reset-password`,
     {
       method: "POST",
       body: JSON.stringify({ new_password: newPassword }),
+    },
+    token
+  );
+}
+
+export function adminUpdateSubmissionLimit(submissionLimitPerDay, token) {
+  return request(
+    "/api/admin/settings/submission-limit",
+    {
+      method: "PUT",
+      body: JSON.stringify({ submission_limit_per_day: submissionLimitPerDay }),
+    },
+    token
+  );
+}
+
+export function adminUploadGroundTruth(task, file, token) {
+  const formData = new FormData();
+  formData.append("file", file);
+  return request(
+    `/api/admin/ground-truth/${task}`,
+    {
+      method: "POST",
+      body: formData,
+    },
+    token
+  );
+}
+
+export function adminUploadTrainData(task, file, token) {
+  const formData = new FormData();
+  formData.append("file", file);
+  return request(
+    `/api/admin/train-data/${task}`,
+    {
+      method: "POST",
+      body: formData,
     },
     token
   );

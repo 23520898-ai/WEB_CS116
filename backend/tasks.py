@@ -1,7 +1,7 @@
 import json
 import os
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 import pandas as pd
 from sqlalchemy.orm import Session
@@ -17,6 +17,120 @@ GROUND_TRUTH_DIR = os.path.join(BASE_DIR, "ground_truth")
 def _load_json(path: str) -> Dict[str, Any]:
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
+
+
+def _unique_keep_order(values: List[str]) -> List[str]:
+    seen = set()
+    ordered: List[str] = []
+    for value in values:
+        if value not in seen:
+            seen.add(value)
+            ordered.append(value)
+    return ordered
+
+
+def _find_ground_truth_path(task: str) -> str:
+    if task == "pir":
+        candidates = [
+            os.path.join(GROUND_TRUTH_DIR, "pir_ground_truth_jan_2026.json"),
+            os.path.join(GROUND_TRUTH_DIR, "pir_ground_truth_jan_2026.parquet"),
+        ]
+    elif task == "forecast":
+        candidates = [
+            os.path.join(GROUND_TRUTH_DIR, "forecast_ground_truth_jan_2026.csv"),
+            os.path.join(GROUND_TRUTH_DIR, "forecast_ground_truth_jan_2026.parquet"),
+        ]
+    else:
+        raise ValueError("Unsupported task.")
+
+    for path in candidates:
+        if os.path.exists(path):
+            return path
+    raise FileNotFoundError(f"Ground truth not found for task '{task}'.")
+
+
+def _load_pir_ground_truth(path: str) -> Dict[str, List[str]]:
+    if path.lower().endswith(".json"):
+        data = _load_json(path)
+        if not isinstance(data, dict):
+            raise ValueError("PIR ground truth JSON must be a dictionary.")
+
+        normalized: Dict[str, List[str]] = {}
+        for customer_id, items in data.items():
+            if not isinstance(customer_id, str):
+                raise ValueError("PIR ground truth customer_id keys must be strings.")
+            if not isinstance(items, list):
+                raise ValueError("Each PIR ground truth value must be an array of item_id strings.")
+            cleaned = [str(item) for item in items if str(item).strip()]
+            normalized[customer_id] = _unique_keep_order(cleaned)
+        return normalized
+
+    if path.lower().endswith(".parquet"):
+        df = pd.read_parquet(path)
+        cols = set(df.columns)
+
+        if {"customer_id", "item_id"}.issubset(cols):
+            grouped: Dict[str, List[str]] = {}
+            for _, row in df[["customer_id", "item_id"]].iterrows():
+                customer_id = str(row["customer_id"])
+                item_id = str(row["item_id"])
+                if customer_id not in grouped:
+                    grouped[customer_id] = []
+                grouped[customer_id].append(item_id)
+            return {cid: _unique_keep_order(items) for cid, items in grouped.items()}
+
+        if {"customer_id", "items"}.issubset(cols):
+            normalized: Dict[str, List[str]] = {}
+            for _, row in df[["customer_id", "items"]].iterrows():
+                customer_id = str(row["customer_id"])
+                raw_items = row["items"]
+
+                if isinstance(raw_items, list):
+                    items = [str(item) for item in raw_items if str(item).strip()]
+                elif isinstance(raw_items, str):
+                    text_value = raw_items.strip()
+                    if text_value.startswith("[") and text_value.endswith("]"):
+                        parsed = json.loads(text_value)
+                        if not isinstance(parsed, list):
+                            raise ValueError("PIR parquet 'items' JSON strings must decode to arrays.")
+                        items = [str(item) for item in parsed if str(item).strip()]
+                    else:
+                        items = [part.strip() for part in text_value.split(",") if part.strip()]
+                else:
+                    raise ValueError("PIR parquet 'items' must be a list or string.")
+
+                normalized[customer_id] = _unique_keep_order(items)
+            return normalized
+
+        raise ValueError(
+            "PIR parquet ground truth must include either columns ['customer_id','item_id'] or ['customer_id','items']."
+        )
+
+    raise ValueError("Unsupported PIR ground truth format.")
+
+
+def _load_forecast_ground_truth(path: str) -> pd.DataFrame:
+    if path.lower().endswith(".csv"):
+        df = pd.read_csv(path)
+    elif path.lower().endswith(".parquet"):
+        df = pd.read_parquet(path)
+    else:
+        raise ValueError("Unsupported forecast ground truth format.")
+
+    required_cols = {"location", "item_id", "actual_qty", "revenue", "sale_status"}
+    missing = required_cols - set(df.columns)
+    if missing:
+        raise ValueError(f"Forecast ground truth missing columns: {sorted(missing)}")
+
+    normalized = df[["location", "item_id", "actual_qty", "revenue", "sale_status"]].copy()
+    normalized["location"] = normalized["location"].astype(str)
+    normalized["item_id"] = normalized["item_id"].astype(str)
+    normalized["actual_qty"] = pd.to_numeric(normalized["actual_qty"], errors="coerce").fillna(0.0)
+    normalized["revenue"] = pd.to_numeric(normalized["revenue"], errors="coerce").fillna(0.0)
+    normalized["sale_status"] = pd.to_numeric(
+        normalized["sale_status"], errors="coerce"
+    ).fillna(0)
+    return normalized
 
 
 def _validate_pir_submission(path: str) -> Dict[str, Any]:
@@ -55,6 +169,16 @@ def validate_submission_file(task: str, path: str) -> None:
         raise ValueError("Unsupported task.")
 
 
+def validate_ground_truth_file(task: str, path: str) -> None:
+    if task == "pir":
+        _load_pir_ground_truth(path)
+        return
+    if task == "forecast":
+        _load_forecast_ground_truth(path)
+        return
+    raise ValueError("Unsupported task.")
+
+
 def _is_better(task: str, new_metrics: Dict[str, Any], old_metrics: Dict[str, Any]) -> bool:
     if task == "pir":
         return float(new_metrics.get("precision_at_10", 0.0)) > float(
@@ -74,11 +198,11 @@ def _primary_score(task: str, metrics: Dict[str, Any]) -> float:
 def _evaluate_submission(db: Session, submission: Submission) -> Dict[str, Any]:
     if submission.task == "pir":
         pred = _validate_pir_submission(submission.file_path)
-        gt = _load_json(os.path.join(GROUND_TRUTH_DIR, "pir_ground_truth_jan_2026.json"))
+        gt = _load_pir_ground_truth(_find_ground_truth_path("pir"))
         return compute_pir_metrics(pred, gt)
 
     pred_df = _validate_forecast_submission(submission.file_path)
-    gt_df = pd.read_csv(os.path.join(GROUND_TRUTH_DIR, "forecast_ground_truth_jan_2026.csv"))
+    gt_df = _load_forecast_ground_truth(_find_ground_truth_path("forecast"))
     return compute_forecast_metrics(pred_df, gt_df)
 
 
