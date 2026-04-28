@@ -1,175 +1,72 @@
 # CS116Q21 ML Challenge Platform
 
-This document describes how to install, run, configure, and operate the current version of the project.
+This document provides a complete guide for setup, running, publishing with ngrok HTTPS, and operating the system for both users and admins.
 
-The platform is designed so you can:
+## 1. Overview
 
-- Launch the full website (frontend + backend) with one Python command
-- Change network settings (host, port, reload) in one place only
-
-## Overview
-
-The system supports two machine learning competition tasks:
+The platform includes two tasks:
 
 - Task 1: Personalized Item Recommendation (PIR)
 - Task 2: Sales Forecasting
 
 Main behavior:
 
-- Teams submit prediction files through the web UI
-- Backend validates and evaluates submissions against hidden January 2026 ground truth
-- Public leaderboards are updated automatically
-- Each team is limited to 3 submissions per day
+- Teams submit prediction files through the web interface
+- The backend validates and evaluates submissions in the background
+- The leaderboard is updated based on each team's best result
 
-## Architecture (Current Version)
-
-- Backend: FastAPI + SQLAlchemy + SQLite
-- Frontend: React + Vite (built static assets)
-- Runtime model: one FastAPI server serves API and frontend static files on the same host/port
-- Entry point: [main.py](main.py)
-
-## Repository Structure
-
-```text
-WEBSITE_CS116/
-├── main.py                        # Single launcher (edit host/port here)
-├── backend/
-│   ├── main.py                    # FastAPI app, API routes, static serving fallback
-│   ├── database.py                # Models, SQLite setup, seed logic
-│   ├── auth.py                    # JWT auth helpers
-│   ├── security.py                # Password hashing helpers
-│   ├── tasks.py                   # Background evaluation pipeline
-│   ├── schemas.py                 # Pydantic response/request schemas
-│   ├── evaluation/
-│   │   ├── pir_metrics.py
-│   │   └── forecast_metrics.py
-│   ├── ground_truth/              # Hidden scoring data
-│   ├── train_data/                # Public downloadable training data
-│   └── uploads/                   # Uploaded submission files
-├── frontend/
-│   ├── src/
-│   ├── package.json
-│   └── dist/                      # Generated build assets (auto-created)
-├── requirements.txt
-├── environment.yml
-└── README.md
-```
-
-## Prerequisites
-
-- Python 3.11
-- Node.js + npm
-- Conda (recommended)
-
-## Setup (Conda)
-
-Run from the repository root:
-
-```powershell
-conda env create -f environment.yml
-conda activate cs116q21
-pip install -r requirements.txt
-```
-
-Optional compatibility fix (only if you hit passlib/bcrypt issues):
-
-```powershell
-pip install --upgrade --force-reinstall bcrypt==4.0.1 passlib==1.7.4
-```
-
-Important:
-
-- Use `cs116q21`, not `base`
-# CS116Q21 ML Challenge Platform
-
-This document provides a complete guide for both participants and admins.
-
-## 1) Project Scope
-
-The platform supports two tasks:
-
-- Task 1: Personalized Item Recommendation (PIR)
-- Task 2: Sale Forecasting
-
-Teams upload prediction files, the system evaluates in background, and leaderboard updates automatically.
-
-## 2) Runtime Architecture
+## 2. Architecture
 
 - Backend: FastAPI + SQLAlchemy + SQLite
 - Frontend: React + Vite
-- Single-host runtime: one backend process serves both API and frontend static assets
-- Main launcher: [main.py](main.py)
+- Default runtime: one FastAPI server serves both API and frontend static assets
+- Entry point: [main.py](main.py)
 
-## 3) Account Model
+## 3. Accounts
 
-### Group accounts
+Team accounts:
 
-- Pre-seeded groups: NHOM01 to NHOM20
-- Each group uses one shared account
-- Username: same as group name (example: NHOM01)
+- NHOM01 to NHOM20
 - Default password: 12345678
 
-### Admin account
+Admin account:
 
-- Username: admin
-- Password: admin123
-- Admin can view all active teams, view all submissions, and reset team passwords
+- admin / admin123
 
-## 4) Task Logic and Evaluation Rules
+## 4. Scoring Logic
 
-### Task 1 - PIR
+Task 1 PIR:
 
-- Submission format: JSON dictionary from customer_id to ordered list of item_id
-- Train data period: year 2025
-- Blind test period: January 2026
-- Evaluation population: customers with purchased transactions in test period, including cold-start users created in January 2026
+- Input: JSON dictionary customer_id -> list item_id
+- Train: 2025
+- Test blind: 01/2026 (purchased)
 - Metrics:
   - total_correct_recommendations
   - iou
   - reciprocal_rank_first_hit
-  - precision_at_10 (primary leaderboard score)
+  - precision_at_10 (primary ranking metric)
   - map
 
-Scoring notes:
+Task 2 Forecast:
 
-- precision_at_10 = hits in top-10 / min(10, number of actual purchased items for that customer)
-- map = mean average precision across eligible customers
-- iou = |predicted set intersection actual set| / |predicted set union actual set|
-- reciprocal_rank_first_hit = 1 / rank of first correct predicted item
-
-### Task 2 - Sale Forecasting
-
-- Submission format: CSV with columns location, item_id, prediction
-- Train data period: year 2025
-- Blind test period: January 2026
-- Evaluation population: only locations with transactions
-- Exclusion rule: items with sale_status = 0 are excluded
+- Input: CSV with 3 columns: location, item_id, prediction
+- Train: 2025
+- Test blind: 01/2026 (purchased)
+- Only locations with transactions are evaluated
+- Rows with sale_status = 0 are excluded
 - Metrics:
   - mae_sales
   - mae_revenue
-  - mape_sales (primary leaderboard score)
+  - mape_sales (primary ranking metric)
   - mape_revenue
 
-Scoring notes:
+## 5. Environment Setup
 
-- mae_sales = mean absolute error on quantity
-- pred_revenue is estimated by unit_price * prediction where unit_price = revenue / actual_qty for rows with actual_qty > 0
-- mae_revenue = mean absolute error on revenue
-- mape_sales is the primary leaderboard objective
-
-### Leaderboard policy
-
-- Leaderboard compares only active competition groups (NHOM01..NHOM20)
-- Ground-truth files are not exposed in public UI
-- Metrics for every submission are visible in history for transparent review
-
-## 5) Setup
-
-Prerequisites:
+Requirements:
 
 - Python 3.11
 - Node.js + npm
-- Conda recommended
+- Conda
 
 Install:
 
@@ -179,9 +76,15 @@ conda activate cs116q21
 pip install -r requirements.txt
 ```
 
-## 6) Run
+If you encounter passlib/bcrypt errors:
 
-From repository root:
+```powershell
+pip install --upgrade --force-reinstall bcrypt==4.0.1 passlib==1.7.4
+```
+
+## 6. Run Method 1: Quick Local Run (Recommended)
+
+From the project root:
 
 ```powershell
 conda activate cs116q21
@@ -191,27 +94,91 @@ python main.py
 Default URLs:
 
 - App: http://localhost:8000
-- App user docs page: http://localhost:8000/docs
-- Backend API docs (Swagger): http://localhost:8000/api/docs
+- User docs page: http://localhost:8000/docs
+- Swagger API: http://localhost:8000/api/docs
 
-## 7) User Workflow
+Notes:
 
-1. Login using NHOMxx account
-2. Open Team page and update member profiles
-3. Change shared password immediately
-4. Upload submissions in Submit page
-5. Track status and metrics in History page
-6. Compare scores in Dashboard
+- The launcher in [main.py](main.py) automatically builds the frontend if needed.
 
-## 8) Admin Workflow
+## 7. Run Method 2: Docker Compose
 
-1. Login with admin account
-2. Open Admin page from sidebar
-3. Review all active teams and member profiles
-4. Review recent submissions from all teams
-5. Reset a group password when required
+From the project root:
 
-## 9) API Summary
+```powershell
+docker compose up --build
+```
+
+In this mode:
+
+- Backend: http://localhost:8000
+- Frontend dev: http://localhost:3000
+
+Use this when you need separate backend/frontend runtime environments.
+
+## 8. Run Method 3: Publish with ngrok HTTPS
+
+### 8.1 Configuration
+
+The [ngrok.yml](ngrok.yml) file is configured with one tunnel for port 8000 and HTTPS-only publishing.
+
+Update token in [ngrok.yml](ngrok.yml):
+
+```yaml
+authtoken: YOUR_NGROK_AUTHTOKEN
+```
+
+Or set a global token once:
+
+```powershell
+ngrok config add-authtoken YOUR_NGROK_AUTHTOKEN
+```
+
+### 8.2 Run Steps
+
+Step 1, run the app:
+
+```powershell
+conda activate cs116q21
+python main.py
+```
+
+Step 2, open the tunnel:
+
+```powershell
+ngrok start --all --config ngrok.yml
+```
+
+Step 3, use the ngrok HTTPS URL to access/share the system.
+
+## 9. User Workflow
+
+1. Log in with an NHOMxx account
+2. Open Team to update member profiles and change password
+3. Open Submit to upload prediction files
+4. Open History to track status and metrics
+5. Open Dashboard to view rankings
+
+## 10. Admin Workflow
+
+Admin can:
+
+- View active teams and member information
+- View system-wide submission history
+- Reset team account passwords
+- Configure maximum submissions per day
+- Upload ground truth
+- Upload train data
+- Preview schema/sample data after train data upload
+
+Supported upload formats:
+
+- Ground truth PIR: .json, .parquet
+- Ground truth Forecast: .csv, .parquet
+- Train data PIR: .json, .parquet
+- Train data Forecast: .csv, .parquet
+
+## 11. Main APIs
 
 Authentication and profile:
 
@@ -234,7 +201,10 @@ Admin:
 - GET /api/admin/teams
 - GET /api/admin/submissions
 - POST /api/admin/teams/{team_id}/reset-password
+- GET /api/admin/settings/submission-limit
+- PUT /api/admin/settings/submission-limit
 - POST /api/admin/ground-truth/{task}
+- POST /api/admin/train-data/{task}
 
 Data and health:
 
@@ -242,13 +212,38 @@ Data and health:
 - GET /api/download/train/forecast
 - GET /api/health
 
-## 10) Notes
+## 12. Quick Troubleshooting
 
-- Hidden scoring data is stored in [backend/ground_truth](backend/ground_truth)
-- Submission files are stored in [backend/uploads](backend/uploads)
-- Public training data is in [backend/train_data](backend/train_data)
-- Database is auto-created and auto-migrated on startup
-- Ground truth upload formats:
-  - PIR: .json or .parquet
-  - Forecast: .csv or .parquet
-The standard mode is `python main.py` only.
+1. ModuleNotFoundError (fastapi/uvicorn)
+
+```powershell
+conda activate cs116q21
+pip install -r requirements.txt
+```
+
+2. npm is not recognized
+
+- Install Node.js and open a new terminal.
+
+3. No module named backend
+
+- Run commands from the project root, not inside the frontend folder.
+
+4. ngrok auth token error
+
+- Check authtoken in [ngrok.yml](ngrok.yml)
+- Or run ngrok config add-authtoken
+
+5. Frontend UI does not update
+
+```powershell
+cd frontend
+npm run build
+```
+
+## 13. Important Data Paths
+
+- Ground truth: [backend/ground_truth](backend/ground_truth)
+- Train data: [backend/train_data](backend/train_data)
+- Submission uploads: [backend/uploads](backend/uploads)
+- Database SQLite: [backend/ml_challenge.db](backend/ml_challenge.db)

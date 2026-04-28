@@ -3,9 +3,8 @@ authtoken: YOUR_NGROK_AUTHTOKEN
 
 # Start with: ngrok start --all --config ngrok.yml
 tunnels:
-  backend:
+  app:
     proto: http
     addr: 8000
-  frontend:
-    proto: http
-    addr: 3000
+    schemes:
+      - https
