@@ -137,6 +137,34 @@ def _parse_member_profiles(member_profiles_json: str | None) -> List[TeamProfile
         return []
 
 
+def _metric_vector(task: str, metrics: dict) -> tuple:
+    if task == "pir":
+        return (
+            float(metrics.get("precision_at_10", 0.0)),
+            float(metrics.get("map", 0.0)),
+            float(metrics.get("iou", 0.0)),
+            float(metrics.get("reciprocal_rank_first_hit", 0.0)),
+            float(metrics.get("total_correct_recommendations", 0.0)),
+        )
+
+    return (
+        float(metrics.get("mape_sales", 999999.0)),
+        float(metrics.get("mae_sales", 999999.0)),
+        float(metrics.get("mape_revenue", 999999.0)),
+        float(metrics.get("mae_revenue", 999999.0)),
+    )
+
+
+def _leaderboard_sort_key(task: str, row: tuple) -> tuple:
+    lb, _, _ = row
+    metrics = _parse_metrics(lb.best_metrics_json) or {}
+    vector = _metric_vector(task, metrics)
+    if task == "pir":
+        # Use ascending sort while effectively ranking higher metric values first.
+        return tuple(-v for v in vector)
+    return vector
+
+
 def _require_admin(current_user: User) -> None:
     if current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Admin permission required")
@@ -341,22 +369,27 @@ def _leaderboard_response(task: str, db: Session) -> List[LeaderboardEntry]:
         .all()
     )
 
-    if task == "pir":
-        rows.sort(key=lambda x: x[0].primary_score, reverse=True)
-        primary_label = "Precision@10"
-    else:
-        rows.sort(key=lambda x: x[0].primary_score)
-        primary_label = "MAPE Sales"
+    rows.sort(key=lambda row: _leaderboard_sort_key(task, row))
+    primary_label = "Precision@10" if task == "pir" else "MAPE Sales"
 
     result = []
+    current_rank = 0
+    previous_vector = None
+
     for idx, (lb, team, sub) in enumerate(rows, start=1):
+        metrics = _parse_metrics(lb.best_metrics_json) or {}
+        vector = _metric_vector(task, metrics)
+        if previous_vector is None or vector != previous_vector:
+            current_rank = idx
+            previous_vector = vector
+
         result.append(
             LeaderboardEntry(
-                rank=idx,
+                rank=current_rank,
                 team_name=team.name,
                 primary_score=lb.primary_score,
                 primary_label=primary_label,
-                secondary_metrics=_parse_metrics(lb.best_metrics_json) or {},
+                secondary_metrics=metrics,
                 last_submission_at=sub.evaluated_at if sub else None,
             )
         )

@@ -181,12 +181,37 @@ def validate_ground_truth_file(task: str, path: str) -> None:
 
 def _is_better(task: str, new_metrics: Dict[str, Any], old_metrics: Dict[str, Any]) -> bool:
     if task == "pir":
-        return float(new_metrics.get("precision_at_10", 0.0)) > float(
-            old_metrics.get("precision_at_10", -1.0)
+        # Higher is better for PIR metrics.
+        new_vector = (
+            float(new_metrics.get("precision_at_10", 0.0)),
+            float(new_metrics.get("map", 0.0)),
+            float(new_metrics.get("iou", 0.0)),
+            float(new_metrics.get("reciprocal_rank_first_hit", 0.0)),
+            float(new_metrics.get("total_correct_recommendations", 0.0)),
         )
-    return float(new_metrics.get("mape_sales", 999999.0)) < float(
-        old_metrics.get("mape_sales", 999999.0)
+        old_vector = (
+            float(old_metrics.get("precision_at_10", -1.0)),
+            float(old_metrics.get("map", -1.0)),
+            float(old_metrics.get("iou", -1.0)),
+            float(old_metrics.get("reciprocal_rank_first_hit", -1.0)),
+            float(old_metrics.get("total_correct_recommendations", -1.0)),
+        )
+        return new_vector > old_vector
+
+    # Lower is better for forecast metrics.
+    new_vector = (
+        float(new_metrics.get("mape_sales", 999999.0)),
+        float(new_metrics.get("mae_sales", 999999.0)),
+        float(new_metrics.get("mape_revenue", 999999.0)),
+        float(new_metrics.get("mae_revenue", 999999.0)),
     )
+    old_vector = (
+        float(old_metrics.get("mape_sales", 999999.0)),
+        float(old_metrics.get("mae_sales", 999999.0)),
+        float(old_metrics.get("mape_revenue", 999999.0)),
+        float(old_metrics.get("mae_revenue", 999999.0)),
+    )
+    return new_vector < old_vector
 
 
 def _primary_score(task: str, metrics: Dict[str, Any]) -> float:
