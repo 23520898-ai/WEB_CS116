@@ -26,7 +26,7 @@ class AppConfig:
 
     # Frontend build settings.
     auto_build_frontend: bool = True
-    force_rebuild_frontend: bool = False
+    force_rebuild_frontend: bool = True
 
 
 ROOT_DIR = Path(__file__).resolve().parent

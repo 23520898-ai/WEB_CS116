@@ -41,12 +41,15 @@ def compute_pir_metrics(
         pred_set = set(pred_items)
         total_correct_recommendations += len(actual_set & pred_set)
 
+        # precision@10
         top10 = pred_items[:10]
         hit_count = len(set(top10) & actual_set)
-        denom = min(10, len(actual_set))
-        precision = hit_count / denom if denom > 0 else 0.0
+        # Chia cho min(10, |actual|) để submission đúng hoàn toàn đạt 1.0
+        denom = min(10, len(actual_set)) if actual_set else 1
+        precision = hit_count / denom
         precision_scores.append(precision)
 
+        # AP
         hit_seen = 0
         precision_sum = 0.0
         for rank, item_id in enumerate(pred_items, start=1):
@@ -56,10 +59,12 @@ def compute_pir_metrics(
         ap = precision_sum / len(actual_set) if actual_set else 0.0
         ap_scores.append(ap)
 
+        # IOU
         union_size = len(actual_set | pred_set)
         iou = len(actual_set & pred_set) / union_size if union_size > 0 else 0.0
         iou_scores.append(iou)
 
+        # RR
         rr = 0.0
         for rank, item_id in enumerate(pred_items, start=1):
             if item_id in actual_set:

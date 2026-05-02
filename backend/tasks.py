@@ -1,6 +1,6 @@
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List
 
 import pandas as pd
@@ -9,6 +9,12 @@ from sqlalchemy.orm import Session
 from backend.database import Leaderboard, SessionLocal, Submission
 from backend.evaluation.forecast_metrics import compute_forecast_metrics
 from backend.evaluation.pir_metrics import compute_pir_metrics
+
+VN_TZ = timezone(timedelta(hours=7))
+
+
+def _now_vn() -> datetime:
+    return datetime.now(VN_TZ).replace(tzinfo=None)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 GROUND_TRUTH_DIR = os.path.join(BASE_DIR, "ground_truth")
@@ -117,16 +123,16 @@ def _load_forecast_ground_truth(path: str) -> pd.DataFrame:
     else:
         raise ValueError("Unsupported forecast ground truth format.")
 
-    required_cols = {"location", "item_id", "actual_qty", "revenue", "sale_status"}
+    required_cols = {"location", "item_id", "actual_quantity", "price", "sale_status"}
     missing = required_cols - set(df.columns)
     if missing:
         raise ValueError(f"Forecast ground truth missing columns: {sorted(missing)}")
 
-    normalized = df[["location", "item_id", "actual_qty", "revenue", "sale_status"]].copy()
-    normalized["location"] = normalized["location"].astype(str)
+    normalized = df[["location", "item_id", "actual_quantity", "price", "sale_status"]].copy()
+    normalized["location"] = pd.to_numeric(normalized["location"], errors="coerce").fillna(0).astype(int)
     normalized["item_id"] = normalized["item_id"].astype(str)
-    normalized["actual_qty"] = pd.to_numeric(normalized["actual_qty"], errors="coerce").fillna(0.0)
-    normalized["revenue"] = pd.to_numeric(normalized["revenue"], errors="coerce").fillna(0.0)
+    normalized["actual_quantity"] = pd.to_numeric(normalized["actual_quantity"], errors="coerce").fillna(0).astype(int)
+    normalized["price"] = pd.to_numeric(normalized["price"], errors="coerce").fillna(0.0)
     normalized["sale_status"] = pd.to_numeric(
         normalized["sale_status"], errors="coerce"
     ).fillna(0)
@@ -147,7 +153,10 @@ def _validate_pir_submission(path: str) -> Dict[str, Any]:
 
 
 def _validate_forecast_submission(path: str) -> pd.DataFrame:
-    df = pd.read_csv(path)
+    if path.lower().endswith(".parquet"):
+        df = pd.read_parquet(path)
+    else:
+        df = pd.read_csv(path)
     required_cols = {"location", "item_id", "prediction"}
     missing = required_cols - set(df.columns)
     if missing:
@@ -245,7 +254,7 @@ def evaluate_submission_task(submission_id: int) -> None:
 
         submission.status = "completed"
         submission.metrics_json = json.dumps(metrics)
-        submission.evaluated_at = datetime.utcnow()
+        submission.evaluated_at = _now_vn()
         db.commit()
 
         existing_lb = (
@@ -261,7 +270,7 @@ def evaluate_submission_task(submission_id: int) -> None:
                 primary_score=_primary_score(submission.task, metrics),
                 best_metrics_json=json.dumps(metrics),
                 best_submission_id=submission.id,
-                updated_at=datetime.utcnow(),
+                updated_at=_now_vn(),
             )
             db.add(lb)
             db.commit()
@@ -272,14 +281,14 @@ def evaluate_submission_task(submission_id: int) -> None:
             existing_lb.primary_score = _primary_score(submission.task, metrics)
             existing_lb.best_metrics_json = json.dumps(metrics)
             existing_lb.best_submission_id = submission.id
-            existing_lb.updated_at = datetime.utcnow()
+            existing_lb.updated_at = _now_vn()
             db.commit()
     except Exception as exc:
         submission = db.query(Submission).filter(Submission.id == submission_id).first()
         if submission:
             submission.status = "failed"
             submission.error_message = str(exc)
-            submission.evaluated_at = datetime.utcnow()
+            submission.evaluated_at = _now_vn()
             db.commit()
     finally:
         db.close()

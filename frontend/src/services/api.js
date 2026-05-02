@@ -9,9 +9,11 @@ async function request(path, options = {}, token) {
     ...(options.headers || {}),
   };
 
-  if (!(options.body instanceof FormData)) {
+  // Nếu body là FormData thì trình duyệt sẽ tự set Content-Type và Boundary
+  if (options.body && !(options.body instanceof FormData)) {
     headers["Content-Type"] = "application/json";
   }
+  
   if (token) {
     headers.Authorization = `Bearer ${token}`;
   }
@@ -24,10 +26,15 @@ async function request(path, options = {}, token) {
   if (!res.ok) {
     let detail = "Request failed";
     try {
-      const body = await res.json();
-      detail = body.detail || JSON.stringify(body);
-    } catch (e) {
-      detail = await res.text();
+      const text = await res.text();
+      try {
+        const body = JSON.parse(text);
+        detail = body.detail || JSON.stringify(body);
+      } catch {
+        if (text) detail = text;
+      }
+    } catch {
+      // ignore read error
     }
     throw new Error(detail);
   }
@@ -39,6 +46,7 @@ async function request(path, options = {}, token) {
   return res;
 }
 
+// ================= AUTH =================
 export function login(username, password) {
   return request("/api/auth/login", {
     method: "POST",
@@ -75,6 +83,7 @@ export function changePassword(currentPassword, newPassword, token) {
   );
 }
 
+// ================= LEADERBOARD =================
 export function getLeaderboardPir() {
   return request("/api/leaderboard/pir");
 }
@@ -83,6 +92,7 @@ export function getLeaderboardForecast() {
   return request("/api/leaderboard/forecast");
 }
 
+// ================= SUBMIT =================
 export function submitPir(file, token) {
   const formData = new FormData();
   formData.append("file", file);
@@ -113,6 +123,7 @@ export function getSubmissions(token) {
   return request("/api/submissions", {}, token);
 }
 
+// ================= ADMIN =================
 export function adminGetTeams(token) {
   return request("/api/admin/teams", {}, token);
 }
@@ -147,6 +158,7 @@ export function adminUpdateSubmissionLimit(submissionLimitPerDay, token) {
   );
 }
 
+// --- GROUND TRUTH ---
 export function adminUploadGroundTruth(task, file, token) {
   const formData = new FormData();
   formData.append("file", file);
@@ -160,6 +172,22 @@ export function adminUploadGroundTruth(task, file, token) {
   );
 }
 
+// Returns { exists: bool, filename: string } for the given task's ground truth
+export function adminGetGroundTruth(task, token) {
+  return request(`/api/admin/ground-truth/${task}`, {}, token);
+}
+
+export function adminDeleteGroundTruth(task, token) {
+  return request(
+    `/api/admin/ground-truth/${task}`,
+    {
+      method: "DELETE",
+    },
+    token
+  );
+}
+
+// --- TRAIN DATA ---
 export function adminUploadTrainData(task, file, token) {
   const formData = new FormData();
   formData.append("file", file);
@@ -168,6 +196,17 @@ export function adminUploadTrainData(task, file, token) {
     {
       method: "POST",
       body: formData,
+    },
+    token
+  );
+}
+
+// --- DELETE SUBMISSION ---
+export function adminDeleteSubmission(submissionId, token) {
+  return request(
+    `/api/admin/submissions/${submissionId}`,
+    {
+      method: "DELETE",
     },
     token
   );

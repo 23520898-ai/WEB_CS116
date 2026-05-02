@@ -1,7 +1,7 @@
 import json
 import os
 import shutil
-from datetime import date, datetime
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import List
 
@@ -31,7 +31,14 @@ from backend.schemas import (
     UpdateSubmissionLimitRequest,
     UpdateTeamProfileRequest,
 )
-from backend.tasks import evaluate_submission_task, validate_ground_truth_file, validate_submission_file
+from backend.tasks import evaluate_submission_task, validate_ground_truth_file, validate_submission_file, _is_better, _primary_score
+
+VN_TZ = timezone(timedelta(hours=7))
+
+
+def _now_vn() -> datetime:
+    return datetime.now(VN_TZ).replace(tzinfo=None)
+
 
 BASE_DIR = Path(__file__).resolve().parent
 UPLOAD_DIR = BASE_DIR / "uploads"
@@ -101,7 +108,7 @@ def _set_submission_limit(db: Session, value: int) -> int:
         db.add(setting)
     else:
         setting.value = str(value)
-        setting.updated_at = datetime.utcnow()
+        setting.updated_at = _now_vn()
     db.commit()
     return value
 
@@ -175,7 +182,7 @@ def _store_upload(file: UploadFile, task: str, team_id: int) -> Path:
     suffix = Path(safe_filename).suffix
     task_dir = UPLOAD_DIR / task
     task_dir.mkdir(parents=True, exist_ok=True)
-    stored_name = f"team{team_id}_{int(datetime.utcnow().timestamp())}_{Path(safe_filename).stem}{suffix}"
+    stored_name = f"team{team_id}_{int(_now_vn().timestamp())}_{Path(safe_filename).stem}{suffix}"
     path = task_dir / stored_name
 
     with path.open("wb") as out:
@@ -369,7 +376,9 @@ def _leaderboard_response(task: str, db: Session) -> List[LeaderboardEntry]:
         .all()
     )
 
+    # ✅ SORT lại leaderboard
     rows.sort(key=lambda row: _leaderboard_sort_key(task, row))
+
     primary_label = "Precision@10" if task == "pir" else "MAPE Sales"
 
     result = []
@@ -379,12 +388,14 @@ def _leaderboard_response(task: str, db: Session) -> List[LeaderboardEntry]:
     for idx, (lb, team, sub) in enumerate(rows, start=1):
         metrics = _parse_metrics(lb.best_metrics_json) or {}
         vector = _metric_vector(task, metrics)
+
         if previous_vector is None or vector != previous_vector:
             current_rank = idx
             previous_vector = vector
 
         result.append(
             LeaderboardEntry(
+                submission_id=sub.id if sub else None,
                 rank=current_rank,
                 team_name=team.name,
                 primary_score=lb.primary_score,
@@ -393,6 +404,7 @@ def _leaderboard_response(task: str, db: Session) -> List[LeaderboardEntry]:
                 last_submission_at=sub.evaluated_at if sub else None,
             )
         )
+
     return result
 
 
@@ -426,8 +438,8 @@ def _create_submission(
 
     if task == "pir" and not (file.filename or "").lower().endswith(".json"):
         raise HTTPException(status_code=400, detail="PIR submission must be a .json file")
-    if task == "forecast" and not (file.filename or "").lower().endswith(".csv"):
-        raise HTTPException(status_code=400, detail="Forecast submission must be a .csv file")
+    if task == "forecast" and not (file.filename or "").lower().endswith((".csv", ".parquet")):
+        raise HTTPException(status_code=400, detail="Forecast submission must be a .csv or .parquet file")
 
     stored_path = _store_upload(file, task=task, team_id=current_user.team_id)
 
@@ -779,6 +791,36 @@ def health():
     return {"status": "ok"}
 
 
+@app.get("/api/admin/ground-truth/{task}")
+def admin_get_ground_truth(task: str, current_user: User = Depends(get_current_user)):
+    _require_admin(current_user)
+
+    if task not in ALLOWED_TASKS:
+        raise HTTPException(status_code=400, detail="Invalid task")
+
+    ground_truth_dir = BASE_DIR / "ground_truth"
+
+    if task == "pir":
+        stem = "pir_ground_truth_jan_2026"
+        exts = [".json", ".parquet"]
+    else:
+        stem = "forecast_ground_truth_jan_2026"
+        exts = [".csv", ".parquet"]
+
+    for ext in exts:
+        path = ground_truth_dir / f"{stem}{ext}"
+        if path.exists():
+            return {
+                "exists": True,
+                "filename": path.name
+            }
+
+    return {
+        "exists": False,
+        "filename": None
+    }
+
+
 if FRONTEND_DIST_DIR.exists():
     assets_dir = FRONTEND_DIST_DIR / "assets"
     if assets_dir.exists():
@@ -812,3 +854,108 @@ def frontend_fallback(full_path: str):
         return FileResponse(str(index_path))
 
     raise HTTPException(status_code=404, detail="Frontend build not found")
+
+
+@app.delete("/api/admin/submissions/{submission_id}")
+def admin_delete_submission(
+    submission_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    _require_admin(current_user)
+
+    submission = db.query(Submission).filter(Submission.id == submission_id).first()
+    if not submission:
+        raise HTTPException(status_code=404, detail="Submission not found")
+
+    team_id = submission.team_id
+    task = submission.task
+
+    if submission.file_path and os.path.exists(submission.file_path):
+        os.remove(submission.file_path)
+
+    db.delete(submission)
+    db.commit()
+
+    remaining = (
+        db.query(Submission)
+        .filter(Submission.team_id == team_id, Submission.task == task, Submission.status == "completed")
+        .all()
+    )
+
+    lb = (
+        db.query(Leaderboard)
+        .filter(Leaderboard.team_id == team_id, Leaderboard.task == task)
+        .first()
+    )
+
+    if not remaining:
+        if lb:
+            db.delete(lb)
+            db.commit()
+    else:
+        best_sub = None
+        best_metrics = None
+
+        for sub in remaining:
+            metrics = _parse_metrics(sub.metrics_json) or {}
+            if not best_sub:
+                best_sub = sub
+                best_metrics = metrics
+            else:
+                if _is_better(task, metrics, best_metrics):
+                    best_sub = sub
+                    best_metrics = metrics
+
+        if lb:
+            lb.primary_score = _primary_score(task, best_metrics)
+            lb.best_metrics_json = json.dumps(best_metrics)
+            lb.best_submission_id = best_sub.id
+            lb.updated_at = _now_vn()
+        else:
+            lb = Leaderboard(
+                team_id=team_id,
+                task=task,
+                primary_score=_primary_score(task, best_metrics),
+                best_metrics_json=json.dumps(best_metrics),
+                best_submission_id=best_sub.id,
+                updated_at=_now_vn(),
+            )
+            db.add(lb)
+
+        db.commit()
+
+    return {"detail": "Submission deleted successfully"}
+
+@app.delete("/api/admin/ground-truth/{task}")
+def admin_delete_ground_truth(
+    task: str,
+    current_user: User = Depends(get_current_user),
+):
+    _require_admin(current_user)
+
+    if task not in ALLOWED_TASKS:
+        raise HTTPException(status_code=400, detail="Invalid task")
+
+    ground_truth_dir = BASE_DIR / "ground_truth"
+
+    if task == "pir":
+        stems = ["pir_ground_truth_jan_2026"]
+        exts = [".json", ".parquet"]
+    else:
+        stems = ["forecast_ground_truth_jan_2026"]
+        exts = [".csv", ".parquet"]
+
+    deleted = False
+
+    for stem in stems:
+        for ext in exts:
+            path = ground_truth_dir / f"{stem}{ext}"
+            if path.exists():
+                path.unlink()
+                deleted = True
+
+    if not deleted:
+        raise HTTPException(status_code=404, detail="No ground truth file found")
+
+    return {"detail": f"Ground truth for '{task}' deleted"}

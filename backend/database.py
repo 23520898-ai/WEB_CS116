@@ -1,7 +1,7 @@
 import json
 import os
 import secrets
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 from sqlalchemy import (
     Boolean,
@@ -21,6 +21,14 @@ from sqlalchemy import (
 from sqlalchemy.orm import declarative_base, relationship, sessionmaker
 
 from backend.security import hash_password
+
+VN_TZ = timezone(timedelta(hours=7))
+
+
+def _now_vn() -> datetime:
+    """Return current datetime in Vietnam timezone stored as naive datetime."""
+    return datetime.now(VN_TZ).replace(tzinfo=None)
+
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "ml_challenge.db")
@@ -43,7 +51,7 @@ class Team(Base):
     member_profiles_json = Column(Text, nullable=False, default="[]")
     notes = Column(Text, nullable=False, default="")
     is_active = Column(Boolean, nullable=False, default=True)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=_now_vn, nullable=False)
 
     users = relationship("User", back_populates="team")
     submissions = relationship("Submission", back_populates="team")
@@ -73,7 +81,7 @@ class Submission(Base):
     status = Column(String, default="pending", nullable=False)
     metrics_json = Column(Text, nullable=True)
     error_message = Column(Text, nullable=True)
-    submitted_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    submitted_at = Column(DateTime, default=_now_vn, nullable=False)
     evaluated_at = Column(DateTime, nullable=True)
 
     team = relationship("Team", back_populates="submissions")
@@ -99,7 +107,7 @@ class Leaderboard(Base):
     primary_score = Column(Float, nullable=False)
     best_metrics_json = Column(Text, nullable=False)
     best_submission_id = Column(Integer, ForeignKey("submissions.id"), nullable=True)
-    updated_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=_now_vn, nullable=False)
 
     __table_args__ = (UniqueConstraint("team_id", "task", name="uix_team_task"),)
 
@@ -110,7 +118,7 @@ class AppSetting(Base):
     id = Column(Integer, primary_key=True)
     key = Column(String, unique=True, nullable=False)
     value = Column(String, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=_now_vn, nullable=False)
 
 
 def init_db() -> None:

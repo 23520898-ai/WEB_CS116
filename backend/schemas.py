@@ -49,12 +49,13 @@ class TeamMeResponse(BaseModel):
 
 
 class LeaderboardEntry(BaseModel):
+    submission_id: int | None
     rank: int
     team_name: str
     primary_score: float
     primary_label: str
-    secondary_metrics: Dict[str, Any]
-    last_submission_at: Optional[datetime]
+    secondary_metrics: dict | None = None
+    last_submission_at: datetime | None = None
 
 
 class SubmissionResponse(BaseModel):
