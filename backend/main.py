@@ -72,7 +72,7 @@ def on_startup() -> None:
 
 
 def _today_limit_row(db: Session, team_id: int) -> DailyLimit:
-    today = date.today()
+    today = _now_vn().date()
     limit_row = (
         db.query(DailyLimit)
         .filter(DailyLimit.team_id == team_id, DailyLimit.date == today)
@@ -450,6 +450,19 @@ def _create_submission(
             stored_path.unlink(missing_ok=True)
         raise HTTPException(status_code=400, detail=f"Invalid submission format: {exc}") from exc
 
+    from sqlalchemy import text
+    result = db.execute(
+        text("UPDATE daily_limits SET count = count + 1 WHERE id = :id AND count < :limit"),
+        {"id": limit_row.id, "limit": submission_limit_per_day}
+    )
+    if result.rowcount == 0:
+        if stored_path.exists():
+            stored_path.unlink(missing_ok=True)
+        raise HTTPException(
+            status_code=429,
+            detail=f"Daily submission limit reached ({submission_limit_per_day}/day).",
+        )
+
     submission_number = _current_submission_number(db, current_user.team_id, task)
     submission = Submission(
         team_id=current_user.team_id,
@@ -461,9 +474,9 @@ def _create_submission(
     )
     db.add(submission)
 
-    limit_row.count += 1
     db.commit()
     db.refresh(submission)
+    db.refresh(limit_row)
 
     background_tasks.add_task(evaluate_submission_task, submission.id)
 
