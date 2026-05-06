@@ -837,10 +837,11 @@ def admin_get_ground_truth(task: str, current_user: User = Depends(get_current_u
 if FRONTEND_DIST_DIR.exists():
     assets_dir = FRONTEND_DIST_DIR / "assets"
     if assets_dir.exists():
-        app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
+        app.mount("/grader/cs116.q21/WEB_CS116/assets", StaticFiles(directory=assets_dir), name="assets")
 
 
-@app.get("/", include_in_schema=False)
+@app.get("/grader/cs116.q21/WEB_CS116", include_in_schema=False)
+@app.get("/grader/cs116.q21/WEB_CS116/", include_in_schema=False)
 def frontend_index():
     index_path = FRONTEND_DIST_DIR / "index.html"
     if index_path.exists():
@@ -853,7 +854,7 @@ def frontend_index():
     )
 
 
-@app.get("/{full_path:path}", include_in_schema=False)
+@app.get("/grader/cs116.q21/WEB_CS116/{full_path:path}", include_in_schema=False)
 def frontend_fallback(full_path: str):
     if full_path.startswith("api/"):
         raise HTTPException(status_code=404, detail="API route not found")
