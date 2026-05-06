@@ -5,6 +5,6 @@ authtoken: 3DDnUE0U7JM6f2HUrkLVetG3LSY_xJex4qLRifEvXPao6TL1
 tunnels:
   app:
     proto: http
-    addr: 8000
+    addr: 11621
     schemes:
       - https
