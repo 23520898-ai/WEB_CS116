@@ -1,4 +1,5 @@
 import { useState } from "react";
+import logoUIT from "../images.jpg";
 
 function LoginPage({ onLogin }) {
   const [username, setUsername] = useState("NHOM01");
@@ -12,7 +13,10 @@ function LoginPage({ onLogin }) {
   return (
     <div className="login-shell">
       <form className="panel login-panel" onSubmit={submit}>
-        <h1>CS116 Challenge Portal</h1>
+        <div style={{ textAlign: "center", marginBottom: "1rem" }}>
+          <img src={logoUIT} alt="UIT Logo" style={{ maxWidth: "160px" }} />
+        </div>
+        <h1 style={{ textAlign: "center" }}>CS116 Challenge Portal</h1>
         <p>Sign in with your team account to submit files and track rankings.</p>
         <label>
           Username

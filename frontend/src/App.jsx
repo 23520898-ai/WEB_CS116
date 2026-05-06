@@ -21,6 +21,7 @@ import HistoryPage from "./pages/HistoryPage";
 import LoginPage from "./pages/LoginPage";
 import DocsPage from "./pages/DocsPage";
 import SubmitPage from "./pages/SubmitPage";
+import logoUIT from "./images.jpg";
 
 function ProtectedLayout({ token, me, onLogout }) {
   const location = useLocation();
@@ -87,11 +88,11 @@ function ProtectedLayout({ token, me, onLogout }) {
     <div className="app-canvas">
       <div className="app-shell">
         <aside className="sidebar">
-          <h2>drive.</h2>
+          <img src={logoUIT} alt="UIT Logo" style={{ width: "100%", maxWidth: "160px", marginBottom: "1rem", alignSelf: "center", display: "block" }} />
 
           <nav>
             {navItems.map((item) => (
-              <NavLink key={item.to} to={item.to}>
+              <NavLink key={item.to} to={item.to} className="nav-link">
                 {item.label}
               </NavLink>
             ))}
