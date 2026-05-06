@@ -127,110 +127,112 @@ function AdminPage({ token }) {
   };
 
   return (
-    <section className="panel admin-panel" style={{ padding: '20px' }}>
+    <section className="panel admin-panel">
       <h2>Admin Center</h2>
       
-      {message && <div style={{ color: '#155724', background: '#d4edda', padding: '10px', borderRadius: '4px', marginBottom: '10px' }}>{message}</div>}
-      {error && <div style={{ color: '#721c24', background: '#f8d7da', padding: '10px', borderRadius: '4px', marginBottom: '10px' }}>{error}</div>}
+      {message && <div className="success">{message}</div>}
+      {error && <div className="error">{error}</div>}
 
       {/* --- SETTINGS --- */}
-      <div className="admin-section" style={{ marginBottom: '30px' }}>
+      <div className="admin-section">
         <h3>General Settings</h3>
         <div style={{ display: 'flex', gap: '40px', flexWrap: 'wrap' }}>
           <form onSubmit={onUpdateLimit} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <label>Daily Limit:</label>
-            <input type="number" value={submissionLimit} onChange={(e) => setSubmissionLimit(e.target.value)} style={{ width: '60px', padding: '5px' }} />
+            <input type="number" value={submissionLimit} onChange={(e) => setSubmissionLimit(e.target.value)} style={{ width: '60px' }} />
             <button type="submit">Update</button>
           </form>
 
           <form onSubmit={onResetPass} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <label>Reset Password:</label>
-            <select value={selectedTeamId} onChange={(e) => setSelectedTeamId(e.target.value)} style={{ padding: '5px' }}>
+            <select value={selectedTeamId} onChange={(e) => setSelectedTeamId(e.target.value)}>
               {teams.map(t => <option key={t.id} value={t.id}>{t.name} ({t.member_account})</option>)}
             </select>
-            <input type="text" value={resetPassword} onChange={(e) => setResetPassword(e.target.value)} style={{ width: '100px', padding: '5px' }} />
+            <input type="text" value={resetPassword} onChange={(e) => setResetPassword(e.target.value)} style={{ width: '100px' }} />
             <button type="submit">Reset</button>
           </form>
         </div>
       </div>
 
-      <hr />
+      <hr style={{ borderColor: 'var(--line)' }} />
 
       {/* --- GROUND TRUTH --- */}
-      <div className="admin-section" style={{ marginTop: '20px' }}>
+      <div className="admin-section">
         <h3>Ground Truth Management</h3>
-        <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px' }}>
-          <thead>
-            <tr style={{ background: '#f8f9fa', textAlign: 'left', borderBottom: '2px solid #dee2e6' }}>
-              <th style={{ padding: '12px' }}>Task</th>
-              <th style={{ padding: '12px' }}>Status</th>
-              <th style={{ padding: '12px' }}>Filename</th>
-              <th style={{ padding: '12px' }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {["pir", "forecast"].map((task) => (
-              <tr key={task} style={{ borderBottom: '1px solid #eee' }}>
-                <td style={{ padding: '12px' }}><strong>{task.toUpperCase()}</strong></td>
-                <td style={{ padding: '12px' }}>
-                  {gtStatus[task]?.exists ? (
-                    <span style={{ color: '#28a745', fontWeight: 'bold' }}>● Available</span>
-                  ) : (
-                    <span style={{ color: '#dc3545' }}>○ Missing</span>
-                  )}
-                </td>
-                <td style={{ padding: '12px', color: '#666' }}>{gtStatus[task]?.filename || "-"}</td>
-                <td style={{ padding: '12px' }}>
-                  <button className="btn-small btn-danger" onClick={() => onDeleteGT(task)} disabled={!gtStatus[task]?.exists}>Delete</button>
-                </td>
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Task</th>
+                <th>Status</th>
+                <th>Filename</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {["pir", "forecast"].map((task) => (
+                <tr key={task}>
+                  <td><strong>{task.toUpperCase()}</strong></td>
+                  <td>
+                    {gtStatus[task]?.exists ? (
+                      <span className="success">● Available</span>
+                    ) : (
+                      <span className="error">○ Missing</span>
+                    )}
+                  </td>
+                  <td>{gtStatus[task]?.filename || "-"}</td>
+                  <td>
+                    <button className="btn-small btn-danger" onClick={() => onDeleteGT(task)} disabled={!gtStatus[task]?.exists}>Delete</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-        <div style={{ background: '#f1f3f5', padding: '20px', borderRadius: '8px', marginTop: '20px' }}>
+        <div className="panel" style={{ marginTop: '20px' }}>
           <h4>Upload New Ground Truth</h4>
           <form onSubmit={onUploadGT} style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-            <select value={gtTask} onChange={(e) => setGtTask(e.target.value)} style={{ padding: '8px' }}>
+            <select value={gtTask} onChange={(e) => setGtTask(e.target.value)}>
               <option value="forecast">Forecast</option>
               <option value="pir">PIR</option>
             </select>
             <input type="file" onChange={(e) => setGtFile(e.target.files?.[0])} style={{ flex: 1 }} />
-            <button type="submit" className="btn-primary" style={{ padding: '8px 20px' }}>Upload & Process</button>
+            <button type="submit">Upload & Process</button>
           </form>
         </div>
       </div>
 
-      <hr style={{ margin: '30px 0' }} />
+      <hr style={{ borderColor: 'var(--line)', margin: '30px 0' }} />
 
       {/* --- SUBMISSIONS --- */}
       <div className="admin-section">
         <h3>Global Submissions History</h3>
-        <div style={{ maxHeight: '400px', overflowY: 'auto', border: '1px solid #eee' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead style={{ position: 'sticky', top: 0, background: '#eee' }}>
-              <tr style={{ textAlign: 'left' }}>
-                <th style={{ padding: '10px' }}>Team</th>
-                <th style={{ padding: '10px' }}>Task</th>
-                <th style={{ padding: '10px' }}>Status</th>
-                <th style={{ padding: '10px' }}>Submitted At</th>
-                <th style={{ padding: '10px' }}>Action</th>
+        <div className="table-wrap" style={{ maxHeight: '400px', overflowY: 'auto' }}>
+          <table>
+            <thead>
+              <tr>
+                <th>Team</th>
+                <th>Task</th>
+                <th>Status</th>
+                <th>Submitted At</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
               {submissions.length === 0 ? (
-                <tr><td colSpan="5" style={{ textAlign: 'center', padding: '20px' }}>No submissions found.</td></tr>
+                <tr><td colSpan="5" style={{ textAlign: 'center' }}>No submissions found.</td></tr>
               ) : (
                 submissions.map((s) => (
-                  <tr key={s.id} style={{ borderBottom: '1px solid #eee' }}>
-                    <td style={{ padding: '10px' }}>{s.team_name}</td>
-                    <td style={{ padding: '10px' }}>{s.task?.toUpperCase()}</td>
-                    <td style={{ padding: '10px' }}>
-                      <span style={{ color: s.status === 'success' ? 'green' : 'red' }}>{s.status}</span>
+                  <tr key={s.id}>
+                    <td>{s.team_name}</td>
+                    <td>{s.task?.toUpperCase()}</td>
+                    <td>
+                      <span className={s.status === 'success' ? 'success' : 'error'}>{s.status}</span>
                     </td>
-                    <td style={{ padding: '10px', fontSize: '12px' }}>{new Date(s.submitted_at).toLocaleString()}</td>
-                    <td style={{ padding: '10px' }}>
-                      <button className="btn-danger btn-small" onClick={() => onDeleteSub(s.id)}>Delete</button>
+                    <td>{new Date(s.submitted_at).toLocaleString()}</td>
+                    <td>
+                      <button onClick={() => onDeleteSub(s.id)}>Delete</button>
                     </td>
                   </tr>
                 ))

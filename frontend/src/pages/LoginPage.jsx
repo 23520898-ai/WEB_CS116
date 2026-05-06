@@ -13,8 +13,8 @@ function LoginPage({ onLogin }) {
   return (
     <div className="login-shell">
       <form className="panel login-panel" onSubmit={submit}>
-        <div style={{ textAlign: "center", marginBottom: "1rem" }}>
-          <img src={logoUIT} alt="UIT Logo" style={{ maxWidth: "160px" }} />
+        <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
+          <img src={logoUIT} alt="UIT Logo" style={{ maxWidth: "100px" }} />
         </div>
         <h1 style={{ textAlign: "center" }}>CS116 Challenge Portal</h1>
         <p>Sign in with your team account to submit files and track rankings.</p>

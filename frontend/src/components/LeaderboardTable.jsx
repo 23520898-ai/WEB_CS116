@@ -24,39 +24,39 @@ function LeaderboardTable({
   };
 
   return (
-    <section className="panel leaderboard-panel" style={{ border: '1px solid #ccc', padding: '15px', marginBottom: '20px', background: '#fff' }}>
-      <div className="panel-header" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
-        <h2 className="panel-title" style={{ margin: 0 }}>{title}</h2>
-        <span style={{ background: '#eee', padding: '5px 10px', borderRadius: '4px' }}>{primaryLabel}</span>
+    <section className="panel leaderboard-panel">
+      <div className="panel-header">
+        <h2 className="panel-title">{title}</h2>
+        <span className="panel-tag">{primaryLabel}</span>
       </div>
       
-      <div className="table-wrap" style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+      <div className="table-wrap">
+        <table>
           <thead>
-            <tr style={{ background: '#f4f4f4', textAlign: 'left' }}>
-              <th style={{ padding: '10px', borderBottom: '2px solid #ddd' }}>Rank</th>
-              <th style={{ padding: '10px', borderBottom: '2px solid #ddd' }}>Team</th>
-              <th style={{ padding: '10px', borderBottom: '2px solid #ddd' }}>{primaryLabel}</th>
-              <th style={{ padding: '10px', borderBottom: '2px solid #ddd' }}>Last Submission</th>
-              {isAdmin && <th style={{ padding: '10px', borderBottom: '2px solid #ddd', color: 'red' }}>Action (Admin)</th>}
+            <tr>
+              <th>Rank</th>
+              <th>Team</th>
+              <th>{primaryLabel}</th>
+              <th>Last Submission</th>
+              {isAdmin && <th>Action (Admin)</th>}
             </tr>
           </thead>
           <tbody>
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={isAdmin ? 5 : 4} style={{ padding: '20px', textAlign: 'center' }}>No submissions yet</td>
+                <td colSpan={isAdmin ? 5 : 4} style={{ textAlign: 'center', padding: '20px' }}>No submissions yet</td>
               </tr>
             ) : (
               rows.map((row) => (
-                <tr key={`${title}-${row.rank}-${row.team_name}`} style={{ borderBottom: '1px solid #eee' }}>
-                  <td style={{ padding: '10px' }}>
-                    <span className="rank-pill" style={{ fontWeight: 'bold' }}>#{row.rank}</span>
+                <tr key={`${title}-${row.rank}-${row.team_name}`}>
+                  <td>
+                    <span className="rank-pill">#{row.rank}</span>
                   </td>
-                  <td style={{ padding: '10px' }}>{row.team_name}</td>
-                  <td style={{ padding: '10px', fontWeight: 'bold', color: '#2c3e50' }}>
+                  <td className="team-name">{row.team_name}</td>
+                  <td className="primary-score">
                     {row.primary_score != null ? Number(row.primary_score).toFixed(4) : "-"}
                   </td>
-                  <td style={{ padding: '10px' }}>{formatDate(row.last_submission_at)}</td>
+                  <td>{formatDate(row.last_submission_at)}</td>
 
                   {isAdmin && (
                     <td style={{ padding: '10px' }}>

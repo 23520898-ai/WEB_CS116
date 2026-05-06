@@ -88,7 +88,7 @@ function ProtectedLayout({ token, me, onLogout }) {
     <div className="app-canvas">
       <div className="app-shell">
         <aside className="sidebar">
-          <img src={logoUIT} alt="UIT Logo" style={{ width: "100%", maxWidth: "160px", marginBottom: "1rem", alignSelf: "center", display: "block" }} />
+          <img src={logoUIT} alt="UIT Logo" style={{ width: "100%", maxWidth: "100px", marginBottom: "1rem", alignSelf: "center", display: "block" }} />
 
           <nav>
             {navItems.map((item) => (

@@ -50,15 +50,14 @@ function HistoryPage({ token }) {
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
       {/* ================= TASK 1: PIR ================= */}
-      <div style={{ marginTop: '20px', border: '1px solid #eee', padding: '15px', borderRadius: '8px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-          <h3>PIR Submissions</h3>
+      <div className="panel" style={{ marginTop: '20px' }}>
+        <div className="panel-header">
+          <h3 className="panel-title">PIR Submissions</h3>
           <div>
-            <label style={{ marginRight: '8px', fontSize: '14px' }}>View Metric:</label>
+            <label style={{ display: 'inline', marginRight: '8px', fontSize: '12px' }}>VIEW METRIC:</label>
             <select
               value={pirMetric}
               onChange={(e) => setPirMetric(e.target.value)}
-              style={{ padding: '4px' }}
             >
               {METRIC_CONFIG.pir.map((m) => (
                 <option key={m} value={m}>
@@ -69,55 +68,53 @@ function HistoryPage({ token }) {
           </div>
         </div>
 
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ textAlign: 'left', background: '#f8f9fa' }}>
-              <th style={{ padding: '10px' }}>#</th>
-              <th style={{ padding: '10px' }}>Status</th>
-              <th style={{ padding: '10px' }}>Score ({pirMetric})</th>
-              <th style={{ padding: '10px' }}>Submitted At</th>
-            </tr>
-          </thead>
-          <tbody>
-            {pirRows.length === 0 ? (
-              <tr><td colSpan="4" style={{ textAlign: 'center', padding: '20px' }}>No PIR submissions yet.</td></tr>
-            ) : (
-              pirRows.map((row) => (
-                <tr key={row.id} style={{ borderBottom: '1px solid #eee' }}>
-                  <td style={{ padding: '10px' }}>{row.submission_number}</td>
-                  <td style={{ padding: '10px' }}>
-                    <span style={{ 
-                      color: row.status === 'success' ? 'green' : row.status === 'failed' ? 'red' : 'orange',
-                      fontWeight: 'bold'
-                    }}>
-                      {row.status.toUpperCase()}
-                    </span>
-                  </td>
-                  <td style={{ padding: '10px', fontWeight: 'bold' }}>
-                    {row.metrics?.[pirMetric] != null
-                      ? Number(row.metrics[pirMetric]).toFixed(4)
-                      : "—"}
-                  </td>
-                  <td style={{ padding: '10px', color: '#666' }}>
-                    {new Date(row.submitted_at).toLocaleString()}
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Status</th>
+                <th>Score ({pirMetric})</th>
+                <th>Submitted At</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pirRows.length === 0 ? (
+                <tr><td colSpan="4" style={{ textAlign: 'center' }}>No PIR submissions yet.</td></tr>
+              ) : (
+                pirRows.map((row) => (
+                  <tr key={row.id}>
+                    <td>{row.submission_number}</td>
+                    <td>
+                      <span className={row.status === 'success' ? 'success' : row.status === 'failed' ? 'error' : ''}>
+                        {row.status.toUpperCase()}
+                      </span>
+                    </td>
+                    <td className="primary-score">
+                      {row.metrics?.[pirMetric] != null
+                        ? Number(row.metrics[pirMetric]).toFixed(4)
+                        : "—"}
+                    </td>
+                    <td>
+                      {new Date(row.submitted_at).toLocaleString()}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* ================= TASK 2: FORECAST ================= */}
-      <div style={{ marginTop: '30px', border: '1px solid #eee', padding: '15px', borderRadius: '8px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-          <h3>Forecast Submissions</h3>
+      <div className="panel" style={{ marginTop: '20px' }}>
+        <div className="panel-header">
+          <h3 className="panel-title">Forecast Submissions</h3>
           <div>
-            <label style={{ marginRight: '8px', fontSize: '14px' }}>View Metric:</label>
+            <label style={{ display: 'inline', marginRight: '8px', fontSize: '12px' }}>VIEW METRIC:</label>
             <select
               value={forecastMetric}
               onChange={(e) => setForecastMetric(e.target.value)}
-              style={{ padding: '4px' }}
             >
               {METRIC_CONFIG.forecast.map((m) => (
                 <option key={m} value={m}>
@@ -128,43 +125,42 @@ function HistoryPage({ token }) {
           </div>
         </div>
 
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ textAlign: 'left', background: '#f8f9fa' }}>
-              <th style={{ padding: '10px' }}>#</th>
-              <th style={{ padding: '10px' }}>Status</th>
-              <th style={{ padding: '10px' }}>Score ({forecastMetric})</th>
-              <th style={{ padding: '10px' }}>Submitted At</th>
-            </tr>
-          </thead>
-          <tbody>
-            {forecastRows.length === 0 ? (
-              <tr><td colSpan="4" style={{ textAlign: 'center', padding: '20px' }}>No Forecast submissions yet.</td></tr>
-            ) : (
-              forecastRows.map((row) => (
-                <tr key={row.id} style={{ borderBottom: '1px solid #eee' }}>
-                  <td style={{ padding: '10px' }}>{row.submission_number}</td>
-                  <td style={{ padding: '10px' }}>
-                    <span style={{ 
-                      color: row.status === 'success' ? 'green' : row.status === 'failed' ? 'red' : 'orange',
-                      fontWeight: 'bold'
-                    }}>
-                      {row.status.toUpperCase()}
-                    </span>
-                  </td>
-                  <td style={{ padding: '10px', fontWeight: 'bold' }}>
-                    {row.metrics?.[forecastMetric] != null
-                      ? Number(row.metrics[forecastMetric]).toFixed(4)
-                      : "—"}
-                  </td>
-                  <td style={{ padding: '10px', color: '#666' }}>
-                    {new Date(row.submitted_at).toLocaleString()}
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Status</th>
+                <th>Score ({forecastMetric})</th>
+                <th>Submitted At</th>
+              </tr>
+            </thead>
+            <tbody>
+              {forecastRows.length === 0 ? (
+                <tr><td colSpan="4" style={{ textAlign: 'center' }}>No Forecast submissions yet.</td></tr>
+              ) : (
+                forecastRows.map((row) => (
+                  <tr key={row.id}>
+                    <td>{row.submission_number}</td>
+                    <td>
+                      <span className={row.status === 'success' ? 'success' : row.status === 'failed' ? 'error' : ''}>
+                        {row.status.toUpperCase()}
+                      </span>
+                    </td>
+                    <td className="primary-score">
+                      {row.metrics?.[forecastMetric] != null
+                        ? Number(row.metrics[forecastMetric]).toFixed(4)
+                        : "—"}
+                    </td>
+                    <td>
+                      {new Date(row.submitted_at).toLocaleString()}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
   );
