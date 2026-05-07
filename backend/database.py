@@ -63,6 +63,9 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, index=True, nullable=False)
     password_hash = Column(String, nullable=False)
+    # Token + expiry for password reset flow
+    reset_token = Column(String, nullable=True)
+    reset_token_expires_at = Column(DateTime, nullable=True)
     role = Column(String, default="member", nullable=False)
     team_id = Column(Integer, ForeignKey("teams.id"), nullable=False)
 
@@ -140,6 +143,12 @@ def _ensure_schema_migrations() -> None:
             conn.execute(text("ALTER TABLE teams ADD COLUMN notes TEXT NOT NULL DEFAULT ''"))
         if "is_active" not in team_columns:
             conn.execute(text("ALTER TABLE teams ADD COLUMN is_active BOOLEAN NOT NULL DEFAULT 1"))
+        # Ensure users table has reset token columns for password recovery
+        user_columns = {col["name"] for col in inspector.get_columns("users")}
+        if "reset_token" not in user_columns:
+            conn.execute(text("ALTER TABLE users ADD COLUMN reset_token TEXT NULL"))
+        if "reset_token_expires_at" not in user_columns:
+            conn.execute(text("ALTER TABLE users ADD COLUMN reset_token_expires_at DATETIME NULL"))
 
 
 def seed_data() -> None:

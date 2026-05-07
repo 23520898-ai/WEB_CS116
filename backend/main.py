@@ -1,6 +1,7 @@
 import json
 import os
 import shutil
+import secrets
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import List
@@ -18,6 +19,8 @@ from backend.schemas import (
     AdminResetPasswordRequest,
     AdminSubmissionResponse,
     ChangePasswordRequest,
+    ForgotPasswordRequest,
+    ResetPasswordRequest,
     LeaderboardEntry,
     LoginRequest,
     LoginResponse,
@@ -328,6 +331,43 @@ def change_password(
     current_user.password_hash = hash_password(payload.new_password)
     db.commit()
     return {"detail": "Password updated successfully"}
+
+
+@app.post("/api/auth/forgot-password")
+def forgot_password(
+    payload: ForgotPasswordRequest,
+    db: Session = Depends(get_db),
+):
+    # Find user by username. In production, use email and send an email with the token.
+    user = db.query(User).filter(User.username == payload.username).first()
+    if not user:
+        # Do not reveal whether account exists
+        return {"detail": "If the account exists, a reset token was sent"}
+
+    token = secrets.token_urlsafe(32)
+    expires = _now_vn() + timedelta(hours=1)
+    user.reset_token = token
+    user.reset_token_expires_at = expires
+    db.commit()
+
+    # For demo environments without email configured, return the token.
+    return {"detail": "Password reset token created", "reset_token": token, "expires_at": expires}
+
+
+@app.post("/api/auth/reset-password")
+def reset_password(payload: ResetPasswordRequest, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.reset_token == payload.token).first()
+    if not user or not user.reset_token_expires_at or user.reset_token_expires_at < _now_vn():
+        raise HTTPException(status_code=400, detail="Invalid or expired token")
+    if len(payload.new_password) < 8:
+        raise HTTPException(status_code=400, detail="New password must be at least 8 characters")
+
+    user.password_hash = hash_password(payload.new_password)
+    user.reset_token = None
+    user.reset_token_expires_at = None
+    db.commit()
+
+    return {"detail": "Password has been reset"}
 
 
 @app.put("/api/teams/me/profile", response_model=TeamMeResponse)
