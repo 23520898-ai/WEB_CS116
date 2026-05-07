@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_BASE || "/grader/cs116.q21/WEB_CS116";
+const API_BASE = import.meta.env.VITE_API_BASE || "/api";
 
 export function getApiBase() {
   return API_BASE;
