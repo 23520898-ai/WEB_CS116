@@ -173,6 +173,7 @@ function App() {
   }, [token]);
 
   const onLogin = async (username, password) => {
+    setError("");
     try {
       const res = await login(username, password);
       localStorage.setItem("ml_token", res.access_token);
@@ -180,6 +181,7 @@ function App() {
       navigate("/"); // Chuyển hướng sau khi login
     } catch (e) {
       setError(e.message);
+      throw e;
     }
   };
 

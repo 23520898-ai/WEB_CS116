@@ -54,6 +54,20 @@ export function login(username, password) {
   });
 }
 
+export function forgotPassword(username) {
+  return request("/api/auth/forgot-password", {
+    method: "POST",
+    body: JSON.stringify({ username }),
+  });
+}
+
+export function resetPassword(token, newPassword) {
+  return request("/api/auth/reset-password", {
+    method: "POST",
+    body: JSON.stringify({ token, new_password: newPassword }),
+  });
+}
+
 export function getMyTeam(token) {
   return request("/api/teams/me", {}, token);
 }
