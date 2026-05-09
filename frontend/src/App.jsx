@@ -90,6 +90,15 @@ function ProtectedLayout({ token, me, onLogout }) {
         <aside className="sidebar">
           <img src={logoUIT} alt="UIT Logo" style={{ width: "100%", maxWidth: "100px", marginBottom: "1rem", alignSelf: "center", display: "block" }} />
 
+          <div className="user-info">
+            <div className="user-avatar">
+              {me?.name?.substring(0, 2).toUpperCase() || "??"}
+            </div>
+            <div className="user-details">
+              <span className="user-name">{me?.name || "Loading..."}</span>
+            </div>
+          </div>
+
           <nav>
             {navItems.map((item) => (
               <NavLink key={item.to} to={item.to} className="nav-link">
@@ -98,7 +107,7 @@ function ProtectedLayout({ token, me, onLogout }) {
             ))}
           </nav>
 
-          <button onClick={onLogout}>Logout</button>
+          <button className="logout-btn" onClick={onLogout}>Logout</button>
         </aside>
 
         <main className="content">
