@@ -186,18 +186,13 @@ function ProtectedLayout({ token, me, onLogout }) {
               <div className="stat-card">
                 <p>Bài nộp hôm nay</p>
                 <strong>{me?.submissions_today ?? 0}</strong>
-              </div>
-              <div className="stat-card">
+              </div>              <div className="stat-card">
                 <p>Lượt còn lại (Task 1 - PIR)</p>
                 <strong>{me?.pir_remaining_today ?? "—"}</strong>
               </div>
               <div className="stat-card">
                 <p>Lượt còn lại (Task 2 - Forecast)</p>
                 <strong>{me?.forecast_remaining_today ?? "—"}</strong>
-              </div>
-              <div className="stat-card">
-                <p>Giới hạn mỗi ngày / task</p>
-                <strong>{me?.submission_limit_per_day ?? 3}</strong>
               </div>
             </>
           )}
