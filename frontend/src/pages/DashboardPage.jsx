@@ -25,8 +25,6 @@ const METRIC_CONFIG = {
 function DashboardPage({ token, me }) {
   const [pirRows, setPirRows] = useState([]);
   const [forecastRows, setForecastRows] = useState([]);
-  const [pirMetric, setPirMetric] = useState("precision_at_10");
-  const [forecastMetric, setForecastMetric] = useState("mape_sales");
   const [error, setError] = useState("");
   
   const isAdmin = me?.current_user_role === "admin";
@@ -52,34 +50,16 @@ function DashboardPage({ token, me }) {
   }, []);
 
   const handleDelete = async (row) => {
-    try {
-      // row.submission_id là ID từ API leaderboard
-      await adminDeleteSubmission(row.submission_id, token);
-      await load(); 
-    } catch (e) {
-      alert("Error: " + (e.response?.data?.detail || e.message));
+    if (!row.submission_id) {
+      alert("Cannot delete: no valid submission ID for this entry.");
+      return;
     }
-  };
-
-  const sortRows = (rows, task, metricKey) => {
-    const config = METRIC_CONFIG[task][metricKey];
-    if (!rows) return [];
-
-    return [...rows]
-      .map((row) => ({
-        ...row,
-        dynamicScore: row.secondary_metrics?.[metricKey] ?? 0,
-      }))
-      .sort((a, b) => {
-        return config.better === "higher"
-          ? b.dynamicScore - a.dynamicScore
-          : a.dynamicScore - b.dynamicScore;
-      })
-      .map((row, idx) => ({
-        ...row,
-        rank: idx + 1,
-        primary_score: row.dynamicScore,
-      }));
+    try {
+      await adminDeleteSubmission(row.submission_id, token);
+      await load();
+    } catch (e) {
+      alert("Delete failed: " + e.message);
+    }
   };
 
   return (
@@ -92,36 +72,20 @@ function DashboardPage({ token, me }) {
 
       <div className="leaderboard-grid">
         <div className="leaderboard-section">
-          <div className="metric-selector" style={{marginBottom: '10px'}}>
-            <label>Sort PIR by: </label>
-            <select value={pirMetric} onChange={(e) => setPirMetric(e.target.value)}>
-              {Object.entries(METRIC_CONFIG.pir).map(([key, val]) => (
-                <option key={key} value={key}>{val.label}</option>
-              ))}
-            </select>
-          </div>
           <LeaderboardTable
             title="Task 1 - PIR"
-            primaryLabel={METRIC_CONFIG.pir[pirMetric].label}
-            rows={sortRows(pirRows, "pir", pirMetric)}
+            rows={pirRows}
+            metricsConfig={METRIC_CONFIG.pir}
             isAdmin={isAdmin}
             onDelete={handleDelete}
           />
         </div>
 
         <div className="leaderboard-section">
-          <div className="metric-selector" style={{marginBottom: '10px'}}>
-            <label>Sort Forecast by: </label>
-            <select value={forecastMetric} onChange={(e) => setForecastMetric(e.target.value)}>
-              {Object.entries(METRIC_CONFIG.forecast).map(([key, val]) => (
-                <option key={key} value={key}>{val.label}</option>
-              ))}
-            </select>
-          </div>
           <LeaderboardTable
             title="Task 2 - Forecast"
-            primaryLabel={METRIC_CONFIG.forecast[forecastMetric].label}
-            rows={sortRows(forecastRows, "forecast", forecastMetric)}
+            rows={forecastRows}
+            metricsConfig={METRIC_CONFIG.forecast}
             isAdmin={isAdmin}
             onDelete={handleDelete}
           />

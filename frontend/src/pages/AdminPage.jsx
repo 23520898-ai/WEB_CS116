@@ -84,6 +84,12 @@ function AdminPage({ token }) {
     e.preventDefault();
     if (!gtFile) return setError("Please select a file first");
 
+    const expectedExt = gtTask === "pir" ? ".json" : ".csv";
+    if (!gtFile.name.toLowerCase().endsWith(expectedExt)) {
+      setError(`Invalid file format for ${gtTask.toUpperCase()}. Expected a ${expectedExt} file, but got "${gtFile.name}".`);
+      return;
+    }
+
     try {
       setMessage("Uploading and processing...");
       setError("");

@@ -93,9 +93,9 @@ python main.py
 
 Default URLs:
 
-- App: http://localhost:8000
-- User docs page: http://localhost:8000/docs
-- Swagger API: http://localhost:8000/api/docs
+- App: http://localhost:11621
+- User docs page: http://localhost:11621/docs
+- Swagger API: http://localhost:11621/api/docs
 
 Notes:
 
@@ -111,8 +111,8 @@ docker compose up --build
 
 In this mode:
 
-- Backend: http://localhost:8000
-- Frontend dev: http://localhost:3000
+- Backend: http://localhost:11621
+- Frontend dev: http://localhost:11621
 
 Use this when you need separate backend/frontend runtime environments.
 

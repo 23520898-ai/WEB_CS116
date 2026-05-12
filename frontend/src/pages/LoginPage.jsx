@@ -12,8 +12,7 @@ function LoginPage({ onLogin }) {
   return (
     <div className="login-shell">
       <form className="panel login-panel" onSubmit={submit}>
-        <h1>CS116 Challenge Portal</h1>
-        <p>Sign in with your team account to submit files and track rankings.</p>
+        <h1>CS116.Q21</h1>
         <label>
           Username
           <input

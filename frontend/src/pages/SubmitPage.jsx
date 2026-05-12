@@ -41,29 +41,38 @@ function SubmitPage({ token }) {
     }
   };
 
-  const remain = teamInfo?.remaining_submissions_today ?? "-";
+  const pirRemain = teamInfo?.pir_remaining_today ?? "-";
+  const forecastRemain = teamInfo?.forecast_remaining_today ?? "-";
+  const remain = task === "pir" ? pirRemain : forecastRemain;
 
   return (
     <section className="panel form-panel">
       <h2>Submit File</h2>
-      <p>Remaining submissions today: {remain}</p>
+
       <form onSubmit={onSubmit}>
         <label>
-          Select task
-          <select value={task} onChange={(e) => setTask(e.target.value)}>
+          <span style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+            <span>Select task</span>
+            <span style={{ fontSize: "0.82rem", color: "var(--muted)", fontWeight: 500 }}>
+              Còn lại hôm nay: <strong style={{ color: "var(--text)" }}>{remain}</strong>
+            </span>
+          </span>
+          <select value={task} onChange={(e) => { setTask(e.target.value); setFile(null); }}>
             <option value="pir">Task 1 - PIR (JSON)</option>
             <option value="forecast">Task 2 - Forecast (CSV)</option>
           </select>
         </label>
 
         <label className="dropzone">
-          <span>Drag and drop a file here, or click to browse</span>
           <input
             type="file"
             accept={task === "pir" ? ".json" : ".csv"}
             onChange={(e) => setFile(e.target.files?.[0] || null)}
           />
-          <strong>{file ? file.name : "No file selected"}</strong>
+          {file
+            ? <strong>{file.name}</strong>
+            : <span style={{ color: "#888" }}>No file selected</span>
+          }
         </label>
 
         <button type="submit" disabled={loading}>

@@ -21,7 +21,7 @@ import uvicorn
 class AppConfig:
     # Network settings (edit these values in one place).
     host: str = "0.0.0.0"
-    port: int = 8000
+    port: int = 11621
     reload: bool = True
 
     # Frontend build settings.

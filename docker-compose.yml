@@ -6,9 +6,9 @@ services:
     working_dir: /app
     volumes:
       - ./:/app
-    command: sh -c "pip install -r requirements.txt && cd backend && uvicorn main:app --host 0.0.0.0 --port 8000"
+    command: sh -c "pip install -r requirements.txt && cd backend && uvicorn main:app --host 0.0.0.0 --port 11621"
     ports:
-      - "8000:8000"
+      - "11621:11621"
 
   frontend:
     image: node:20-alpine
@@ -17,6 +17,6 @@ services:
       - ./:/app
     command: sh -c "npm install && npm start"
     ports:
-      - "3000:3000"
+      - "11621:11621"
     depends_on:
       - backend

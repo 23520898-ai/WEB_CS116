@@ -133,6 +133,8 @@ button:hover {
   padding: 1.35rem;
   background: var(--panel);
   animation: reveal 0.4s ease;
+  min-width: 0;
+  overflow: auto;
 }
 
 .content-head {
@@ -159,6 +161,8 @@ button:hover {
   display: grid;
   gap: 0.7rem;
   align-content: start;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .right-rail h3 {
@@ -187,13 +191,16 @@ button:hover {
   font-size: 0.76rem;
   font-weight: 500;
   letter-spacing: 0.03em;
+  white-space: normal;
+  word-break: break-word;
 }
 
 .stat-card strong {
   display: inline-block;
   margin-top: 0.25rem;
-  font-size: 1.55rem;
+  font-size: 1.3rem;
   color: var(--accent-dark);
+  word-break: break-all;
 }
 
 .promo-box {

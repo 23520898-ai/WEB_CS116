@@ -46,6 +46,10 @@ class TeamMeResponse(BaseModel):
     submission_limit_per_day: int
     submissions_today: int
     remaining_submissions_today: int
+    pir_submissions_today: int = 0
+    forecast_submissions_today: int = 0
+    pir_remaining_today: int = 0
+    forecast_remaining_today: int = 0
 
 
 class LeaderboardEntry(BaseModel):
