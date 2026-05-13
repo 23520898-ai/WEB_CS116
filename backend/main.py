@@ -466,10 +466,19 @@ def _create_submission(
 
     submission_limit_per_day = _get_submission_limit(db)
     limit_row = _today_limit_row(db, current_user.team_id)
-    if limit_row.count >= submission_limit_per_day:
+
+    # Count today's submissions for this specific task only
+    today_start = datetime.combine(_now_vn().date(), datetime.min.time())
+    task_count_today = db.query(func.count(Submission.id)).filter(
+        Submission.team_id == current_user.team_id,
+        Submission.task == task,
+        Submission.submitted_at >= today_start,
+    ).scalar() or 0
+
+    if task_count_today >= submission_limit_per_day:
         raise HTTPException(
             status_code=429,
-            detail=f"Daily submission limit reached ({submission_limit_per_day}/day).",
+            detail=f"Daily submission limit reached for {task} ({submission_limit_per_day}/day).",
         )
 
     if task == "pir" and not (file.filename or "").lower().endswith(".json"):
@@ -489,14 +498,14 @@ def _create_submission(
     from sqlalchemy import text
     result = db.execute(
         text("UPDATE daily_limits SET count = count + 1 WHERE id = :id AND count < :limit"),
-        {"id": limit_row.id, "limit": submission_limit_per_day}
+        {"id": limit_row.id, "limit": submission_limit_per_day * len(ALLOWED_TASKS)}
     )
     if result.rowcount == 0:
         if stored_path.exists():
             stored_path.unlink(missing_ok=True)
         raise HTTPException(
             status_code=429,
-            detail=f"Daily submission limit reached ({submission_limit_per_day}/day).",
+            detail=f"Daily submission limit reached for {task} ({submission_limit_per_day}/day).",
         )
 
     submission_number = _current_submission_number(db, current_user.team_id, task)
