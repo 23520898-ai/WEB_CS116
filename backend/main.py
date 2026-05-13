@@ -908,7 +908,7 @@ def frontend_fallback(full_path: str):
     raise HTTPException(status_code=404, detail="Frontend build not found")
 
 
-@api_router.delete("/api/admin/submissions/{submission_id}")
+@app.delete(BASE_PATH + "/api/admin/submissions/{submission_id}")
 def admin_delete_submission(
     submission_id: int,
     current_user: User = Depends(get_current_user),
@@ -979,7 +979,7 @@ def admin_delete_submission(
 
     return {"detail": "Submission deleted successfully"}
 
-@api_router.delete("/api/admin/ground-truth/{task}")
+@app.delete(BASE_PATH + "/api/admin/ground-truth/{task}")
 def admin_delete_ground_truth(
     task: str,
     current_user: User = Depends(get_current_user),
