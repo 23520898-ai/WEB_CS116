@@ -1,17 +1,17 @@
 :root {
-  --bg: radial-gradient(circle at top center, #1b273f 0%, #090d14 100%);
-  --surface: rgba(17, 24, 39, 0.7);
-  --panel: rgba(31, 41, 55, 0.8);
-  --panel-strong: #374151;
-  --ink: #F3F4F6;
-  --muted: #9CA3AF;
-  --accent: #00D4FF;
-  --accent-dark: #0096C7;
-  --line: rgba(255, 255, 255, 0.1);
-  --danger: #EF4444;
-  --success: #10B981;
-  --soft-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
-  --neon-glow: 0 0 10px rgba(0, 212, 255, 0.3);
+  --bg: radial-gradient(circle at top center, #e8f0fe 0%, #f1f5f9 100%);
+  --surface: rgba(255, 255, 255, 0.85);
+  --panel: rgba(255, 255, 255, 0.95);
+  --panel-strong: #e2e8f0;
+  --ink: #111827;
+  --muted: #6B7280;
+  --accent: #0077CC;
+  --accent-dark: #005fa3;
+  --line: rgba(0, 0, 0, 0.1);
+  --danger: #DC2626;
+  --success: #059669;
+  --soft-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+  --neon-glow: 0 0 10px rgba(0, 119, 204, 0.2);
 }
 
 * {
@@ -61,7 +61,7 @@ a {
 }
 
 .sidebar {
-  background: rgba(11, 15, 25, 0.4);
+  background: rgba(241, 245, 249, 0.8);
   border-right: 1px solid var(--line);
   padding: 1.5rem 1.1rem;
   display: flex;
@@ -74,7 +74,7 @@ a {
   align-items: center;
   gap: 12px;
   padding: 12px;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(0, 0, 0, 0.04);
   border: 1px solid var(--line);
   border-radius: 12px;
 }
@@ -136,13 +136,13 @@ a {
 }
 
 .nav-link:hover {
-  background: rgba(0, 212, 255, 0.08);
+  background: rgba(0, 119, 204, 0.08);
   color: var(--ink);
 }
 
 .nav-link.active {
-  background: rgba(0, 212, 255, 0.15);
-  border: 1px solid rgba(0, 212, 255, 0.3);
+  background: rgba(0, 119, 204, 0.15);
+  border: 1px solid rgba(0, 119, 204, 0.3);
   color: var(--accent);
   box-shadow: var(--neon-glow);
 }
@@ -161,7 +161,7 @@ a {
 .sidebar button,
 button {
   border: 1px solid var(--accent-dark);
-  background: rgba(0, 150, 199, 0.2);
+  background: rgba(0, 119, 204, 0.1);
   color: var(--accent);
   font-weight: 700;
   padding: 0.62rem 0.95rem;
@@ -223,7 +223,7 @@ button:hover {
 }
 
 .right-rail {
-  background: rgba(11, 15, 25, 0.4);
+  background: rgba(241, 245, 249, 0.8);
   border-left: 1px solid var(--line);
   padding: 1.5rem 1rem;
   display: grid;
@@ -274,8 +274,8 @@ button:hover {
 
 .promo-box {
   margin-top: 0.5rem;
-  background: rgba(0, 212, 255, 0.05);
-  border: 1px solid rgba(0, 212, 255, 0.2);
+  background: rgba(0, 119, 204, 0.05);
+  border: 1px solid rgba(0, 119, 204, 0.2);
   border-radius: 12px;
   padding: 1rem;
 }
@@ -354,7 +354,7 @@ button:hover {
 }
 
 .recent-card-active {
-  background: rgba(0, 212, 255, 0.1);
+  background: rgba(0, 119, 204, 0.08);
   border: 1px solid var(--accent);
   box-shadow: var(--neon-glow);
 }
@@ -399,9 +399,9 @@ button:hover {
 }
 
 .panel-tag {
-  background: rgba(0, 212, 255, 0.1);
+  background: rgba(0, 119, 204, 0.1);
   color: var(--accent);
-  border: 1px solid rgba(0, 212, 255, 0.2);
+  border: 1px solid rgba(0, 119, 204, 0.2);
   border-radius: 6px;
   padding: 0.25rem 0.6rem;
   font-size: 0.72rem;
@@ -445,9 +445,9 @@ td {
   min-width: 32px;
   height: 32px;
   border-radius: 8px;
-  background: rgba(0, 212, 255, 0.1);
+  background: rgba(0, 119, 204, 0.1);
   color: var(--accent);
-  border: 1px solid rgba(0, 212, 255, 0.3);
+  border: 1px solid rgba(0, 119, 204, 0.3);
   font-weight: 700;
   font-size: 0.8rem;
   font-family: "Space Grotesk", sans-serif;
@@ -473,7 +473,7 @@ pre {
   font-size: 0.75rem;
   color: var(--muted);
   font-family: monospace;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.05);
   padding: 0.5rem;
   border-radius: 6px;
   border: 1px solid var(--line);
@@ -496,7 +496,7 @@ textarea {
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 0.7rem;
-  background: rgba(0, 0, 0, 0.2);
+  background: #ffffff;
   color: var(--ink);
   font-family: "Chivo", sans-serif;
   transition: all 0.2s ease;
@@ -518,7 +518,7 @@ textarea {
   padding: 2rem 1rem;
   border: 2px dashed var(--line);
   border-radius: 12px;
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.03);
   text-align: center;
   transition: all 0.2s ease;
 }
@@ -562,15 +562,15 @@ textarea {
   place-items: center;
   padding: 1rem;
   background: var(--bg);
-  background-image: radial-gradient(circle at 50% 50%, rgba(0, 212, 255, 0.05) 0%, transparent 60%);
+  background-image: radial-gradient(circle at 50% 50%, rgba(0, 119, 204, 0.05) 0%, transparent 60%);
 }
 
 .login-panel {
   width: min(440px, 100%);
   padding: 2rem;
-  border: 1px solid rgba(0, 212, 255, 0.2);
+  border: 1px solid rgba(0, 119, 204, 0.2);
   box-shadow: var(--soft-shadow), var(--neon-glow);
-  background: rgba(17, 24, 39, 0.85);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(16px);
 }
 
