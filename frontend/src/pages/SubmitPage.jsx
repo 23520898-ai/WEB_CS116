@@ -51,7 +51,7 @@ function SubmitPage({ token }) {
   const onSubmit = async (e) => {
     e.preventDefault();
     if (!file) {
-      setError("Please select a file before submitting.");
+      alert("Vui lòng chọn một file trước khi nộp!");
       return;
     }
 

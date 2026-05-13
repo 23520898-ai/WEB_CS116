@@ -22,6 +22,7 @@ import HistoryPage from "./pages/HistoryPage";
 import LoginPage from "./pages/LoginPage";
 import DocsPage from "./pages/DocsPage";
 import SubmitPage from "./pages/SubmitPage";
+import logoUIT from "./images.jpg";
 
 function ProtectedLayout({ token, me, onLogout }) {
   const location = useLocation();

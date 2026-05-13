@@ -5,9 +5,9 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import List
 
-from fastapi import BackgroundTasks, Depends, FastAPI, File, HTTPException, UploadFile, status
+from fastapi import APIRouter, BackgroundTasks, Depends, FastAPI, File, HTTPException, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import func
 from sqlalchemy.orm import Session
@@ -58,6 +58,10 @@ app = FastAPI(
     openapi_url="/api/openapi.json",
 )
 
+# --- Prefix Configuration ---
+BASE_PATH = "/grader/cs116.q21/WEB_CS116"
+api_router = APIRouter()
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -72,8 +76,13 @@ def on_startup() -> None:
     init_db()
 
 
+@app.get("/", include_in_schema=False)
+def root_redirect():
+    return RedirectResponse(url=f"{BASE_PATH}/")
+
+
 def _today_limit_row(db: Session, team_id: int) -> DailyLimit:
-    today = date.today()
+    today = _now_vn().date()
     limit_row = (
         db.query(DailyLimit)
         .filter(DailyLimit.team_id == team_id, DailyLimit.date == today)
@@ -300,7 +309,7 @@ def _resolve_train_data_path(task: str) -> Path:
     raise FileNotFoundError("Training file not found")
 
 
-@app.post("/api/auth/login", response_model=LoginResponse)
+@api_router.post("/api/auth/login", response_model=LoginResponse)
 def login(payload: LoginRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.username == payload.username).first()
     if not user or not verify_password(payload.password, user.password_hash):
@@ -310,7 +319,7 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
     return LoginResponse(access_token=token)
 
 
-@app.get("/api/teams/me", response_model=TeamMeResponse)
+@api_router.get("/api/teams/me", response_model=TeamMeResponse)
 def get_team_me(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     team = db.query(Team).filter(Team.id == current_user.team_id).first()
     members = db.query(User).filter(User.team_id == current_user.team_id).all()
@@ -336,7 +345,7 @@ def get_team_me(current_user: User = Depends(get_current_user), db: Session = De
     )
 
 
-@app.post("/api/auth/change-password")
+@api_router.post("/api/auth/change-password")
 def change_password(
     payload: ChangePasswordRequest,
     current_user: User = Depends(get_current_user),
@@ -352,7 +361,7 @@ def change_password(
     return {"detail": "Password updated successfully"}
 
 
-@app.put("/api/teams/me/profile", response_model=TeamMeResponse)
+@api_router.put("/api/teams/me/profile", response_model=TeamMeResponse)
 def update_team_profile(
     payload: UpdateTeamProfileRequest,
     current_user: User = Depends(get_current_user),
@@ -435,12 +444,12 @@ def _leaderboard_response(task: str, db: Session) -> List[LeaderboardEntry]:
     return result
 
 
-@app.get("/api/leaderboard/pir", response_model=List[LeaderboardEntry])
+@api_router.get("/api/leaderboard/pir", response_model=List[LeaderboardEntry])
 def leaderboard_pir(db: Session = Depends(get_db)):
     return _leaderboard_response("pir", db)
 
 
-@app.get("/api/leaderboard/forecast", response_model=List[LeaderboardEntry])
+@api_router.get("/api/leaderboard/forecast", response_model=List[LeaderboardEntry])
 def leaderboard_forecast(db: Session = Depends(get_db)):
     return _leaderboard_response("forecast", db)
 
@@ -477,6 +486,19 @@ def _create_submission(
             stored_path.unlink(missing_ok=True)
         raise HTTPException(status_code=400, detail=f"Invalid submission format: {exc}") from exc
 
+    from sqlalchemy import text
+    result = db.execute(
+        text("UPDATE daily_limits SET count = count + 1 WHERE id = :id AND count < :limit"),
+        {"id": limit_row.id, "limit": submission_limit_per_day}
+    )
+    if result.rowcount == 0:
+        if stored_path.exists():
+            stored_path.unlink(missing_ok=True)
+        raise HTTPException(
+            status_code=429,
+            detail=f"Daily submission limit reached ({submission_limit_per_day}/day).",
+        )
+
     submission_number = _current_submission_number(db, current_user.team_id, task)
     submission = Submission(
         team_id=current_user.team_id,
@@ -488,9 +510,9 @@ def _create_submission(
     )
     db.add(submission)
 
-    limit_row.count += 1
     db.commit()
     db.refresh(submission)
+    db.refresh(limit_row)
 
     background_tasks.add_task(evaluate_submission_task, submission.id)
 
@@ -504,7 +526,7 @@ def _create_submission(
     )
 
 
-@app.post("/api/submit/pir", response_model=SubmitResponse)
+@api_router.post("/api/submit/pir", response_model=SubmitResponse)
 def submit_pir(
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
@@ -514,7 +536,7 @@ def submit_pir(
     return _create_submission("pir", file, background_tasks, current_user, db)
 
 
-@app.post("/api/submit/forecast", response_model=SubmitResponse)
+@api_router.post("/api/submit/forecast", response_model=SubmitResponse)
 def submit_forecast(
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
@@ -524,7 +546,7 @@ def submit_forecast(
     return _create_submission("forecast", file, background_tasks, current_user, db)
 
 
-@app.get("/api/submissions", response_model=List[SubmissionResponse])
+@api_router.get("/api/submissions", response_model=List[SubmissionResponse])
 def list_submissions(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
@@ -551,7 +573,7 @@ def list_submissions(
     ]
 
 
-@app.get("/api/admin/teams", response_model=List[TeamSummaryResponse])
+@api_router.get("/api/admin/teams", response_model=List[TeamSummaryResponse])
 def admin_list_teams(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
@@ -581,7 +603,7 @@ def admin_list_teams(
     return result
 
 
-@app.get("/api/admin/settings/submission-limit", response_model=SubmissionLimitResponse)
+@api_router.get("/api/admin/settings/submission-limit", response_model=SubmissionLimitResponse)
 def admin_get_submission_limit(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
@@ -590,7 +612,7 @@ def admin_get_submission_limit(
     return SubmissionLimitResponse(submission_limit_per_day=_get_submission_limit(db))
 
 
-@app.put("/api/admin/settings/submission-limit", response_model=SubmissionLimitResponse)
+@api_router.put("/api/admin/settings/submission-limit", response_model=SubmissionLimitResponse)
 def admin_update_submission_limit(
     payload: UpdateSubmissionLimitRequest,
     current_user: User = Depends(get_current_user),
@@ -606,7 +628,7 @@ def admin_update_submission_limit(
     return SubmissionLimitResponse(submission_limit_per_day=updated)
 
 
-@app.post("/api/admin/teams/{team_id}/reset-password")
+@api_router.post("/api/admin/teams/{team_id}/reset-password")
 def admin_reset_team_password(
     team_id: int,
     payload: AdminResetPasswordRequest,
@@ -631,7 +653,7 @@ def admin_reset_team_password(
     return {"detail": f"Password for {member_account.username} has been reset"}
 
 
-@app.get("/api/admin/submissions", response_model=List[AdminSubmissionResponse])
+@api_router.get("/api/admin/submissions", response_model=List[AdminSubmissionResponse])
 def admin_list_submissions(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
@@ -662,7 +684,7 @@ def admin_list_submissions(
     ]
 
 
-@app.post("/api/admin/ground-truth/{task}")
+@api_router.post("/api/admin/ground-truth/{task}")
 def admin_upload_ground_truth(
     task: str,
     file: UploadFile = File(...),
@@ -723,7 +745,7 @@ def admin_upload_ground_truth(
     }
 
 
-@app.post("/api/admin/train-data/{task}")
+@api_router.post("/api/admin/train-data/{task}")
 def admin_upload_train_data(
     task: str,
     file: UploadFile = File(...),
@@ -786,7 +808,7 @@ def admin_upload_train_data(
     }
 
 
-@app.get("/api/submissions/{submission_id}/file")
+@api_router.get("/api/submissions/{submission_id}/file")
 def download_submission_file(
     submission_id: int,
     current_user: User = Depends(get_current_user),
@@ -801,7 +823,7 @@ def download_submission_file(
     return FileResponse(submission.file_path, filename=submission.original_filename)
 
 
-@app.get("/api/download/train/{task}")
+@api_router.get("/api/download/train/{task}")
 def download_train_data(task: str):
     if task not in ALLOWED_TASKS:
         raise HTTPException(status_code=400, detail="Invalid task")
@@ -813,12 +835,12 @@ def download_train_data(task: str):
     return FileResponse(str(path), filename=path.name)
 
 
-@app.get("/api/health")
+@api_router.get("/api/health")
 def health():
     return {"status": "ok"}
 
 
-@app.get("/api/admin/ground-truth/{task}")
+@api_router.get("/api/admin/ground-truth/{task}")
 def admin_get_ground_truth(task: str, current_user: User = Depends(get_current_user)):
     _require_admin(current_user)
 
@@ -848,13 +870,16 @@ def admin_get_ground_truth(task: str, current_user: User = Depends(get_current_u
     }
 
 
+app.include_router(api_router, prefix=BASE_PATH)
+
 if FRONTEND_DIST_DIR.exists():
     assets_dir = FRONTEND_DIST_DIR / "assets"
     if assets_dir.exists():
-        app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
+        app.mount("/grader/cs116.q21/WEB_CS116/assets", StaticFiles(directory=assets_dir), name="assets")
 
 
-@app.get("/", include_in_schema=False)
+@app.get("/grader/cs116.q21/WEB_CS116", include_in_schema=False)
+@app.get("/grader/cs116.q21/WEB_CS116/", include_in_schema=False)
 def frontend_index():
     index_path = FRONTEND_DIST_DIR / "index.html"
     if index_path.exists():
@@ -867,7 +892,7 @@ def frontend_index():
     )
 
 
-@app.get("/{full_path:path}", include_in_schema=False)
+@app.get("/grader/cs116.q21/WEB_CS116/{full_path:path}", include_in_schema=False)
 def frontend_fallback(full_path: str):
     if full_path.startswith("api/"):
         raise HTTPException(status_code=404, detail="API route not found")

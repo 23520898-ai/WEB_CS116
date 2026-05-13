@@ -1,74 +1,65 @@
 # CS116Q21 ML Challenge Platform
 
-This document provides a complete guide for setup, running, publishing with ngrok HTTPS, and operating the system for both users and admins.
+Complete guide for setup, running, publishing via ngrok HTTPS, and operating the system as a user or admin.
+
+---
 
 ## 1. Overview
 
-The platform includes two tasks:
+The platform hosts two prediction tasks:
 
-- Task 1: Personalized Item Recommendation (PIR)
-- Task 2: Sales Forecasting
+| Task | Name | Input | Primary Metric |
+|------|------|-------|----------------|
+| 1 | Personalized Item Recommendation (PIR) | JSON `{customer_id: [item_id]}` | Precision@10 (higher is better) |
+| 2 | Sales Forecasting | CSV `location, item_id, prediction` | MAPE Sales (lower is better) |
 
-Main behavior:
+Core flow: teams log in → upload prediction files → backend validates and scores in the background → leaderboard automatically reflects each team's best result.
 
-- Teams submit prediction files through the web interface
-- The backend validates and evaluates submissions in the background
-- The leaderboard is updated based on each team's best result
+---
 
 ## 2. Architecture
 
-- Backend: FastAPI + SQLAlchemy + SQLite
-- Frontend: React + Vite
-- Default runtime: one FastAPI server serves both API and frontend static assets
-- Entry point: [main.py](main.py)
+```
+WEBSITE_CS116/
+├── main.py                  # Entry point: builds frontend + starts FastAPI
+├── backend/
+│   ├── main.py              # FastAPI app, all API routes
+│   ├── database.py          # SQLAlchemy models + SQLite init
+│   ├── tasks.py             # Validation + background scoring
+│   ├── evaluation/
+│   │   ├── forecast_metrics.py   # MAPE, MAE for Forecast
+│   │   └── pir_metrics.py        # Precision@10, MAP, IOU, RR for PIR
+│   ├── ground_truth/        # Ground truth files (uploaded via Admin)
+│   ├── train_data/          # Train data files (publicly downloadable)
+│   └── uploads/             # Team submission files
+└── frontend/                # React + Vite (served as static by FastAPI)
+```
 
-## 3. Accounts
+- **Backend:** FastAPI + SQLAlchemy + SQLite
+- **Frontend:** React + Vite (static build, served by FastAPI)
+- **Database:** `backend/ml_challenge.db` (auto-created on first run)
 
-Team accounts:
+---
 
-- NHOM01 to NHOM20
-- Default password: 12345678
+## 3. Default Accounts
 
-Admin account:
+### Team accounts
 
-- admin / admin123
+| Username | Password | Note |
+|----------|----------|------|
+| NHOM01 → NHOM20 | `12345678` | Change password after first login |
 
-## 4. Scoring Logic
+### Admin account
 
-Task 1 PIR:
+| Username | Password |
+|----------|----------|
+| `admin` | `admin123` |
 
-- Input: JSON dictionary customer_id -> list item_id
-- Train: 2025
-- Test blind: 01/2026 (purchased)
-- Metrics:
-  - total_correct_recommendations
-  - iou
-  - reciprocal_rank_first_hit
-  - precision_at_10 (primary ranking metric)
-  - map
+---
 
-Task 2 Forecast:
+## 4. Environment Setup
 
-- Input: CSV with 3 columns: location, item_id, prediction
-- Train: 2025
-- Test blind: 01/2026 (purchased)
-- Only locations with transactions are evaluated
-- Rows with sale_status = 0 are excluded
-- Metrics:
-  - mae_sales
-  - mae_revenue
-  - mape_sales (primary ranking metric)
-  - mape_revenue
-
-## 5. Environment Setup
-
-Requirements:
-
-- Python 3.11
-- Node.js + npm
-- Conda
-
-Install:
+**Requirements:** Python 3.11, Node.js ≥ 18, Conda
 
 ```powershell
 conda env create -f environment.yml
@@ -76,174 +67,371 @@ conda activate cs116q21
 pip install -r requirements.txt
 ```
 
-If you encounter passlib/bcrypt errors:
+If you encounter `passlib`/`bcrypt` errors:
 
 ```powershell
 pip install --upgrade --force-reinstall bcrypt==4.0.1 passlib==1.7.4
 ```
 
-## 6. Run Method 1: Quick Local Run (Recommended)
+---
 
-From the project root:
+## 5. How to Run
+
+### Option 1 — Local (recommended)
 
 ```powershell
 conda activate cs116q21
 python main.py
 ```
 
-Default URLs:
+`main.py` builds the frontend automatically if no build exists. After startup:
 
-- App: http://localhost:11621
-- User docs page: http://localhost:11621/docs
-- Swagger API: http://localhost:11621/api/docs
+| URL | Purpose |
+|-----|---------|
+| http://localhost:8000 | Main web UI |
+| http://localhost:8000/api/docs | Swagger UI (interactive API testing) |
+| http://localhost:8000/api/health | Health check |
 
-Notes:
-
-- The launcher in [main.py](main.py) automatically builds the frontend if needed.
-
-## 7. Run Method 2: Docker Compose
-
-From the project root:
+### Option 2 — Docker Compose
 
 ```powershell
 docker compose up --build
 ```
 
-In this mode:
+- Backend: http://localhost:8000
+- Frontend dev (hot-reload): http://localhost:3000
 
-- Backend: http://localhost:11621
-- Frontend dev: http://localhost:11621
+### Option 3 — Publish via ngrok HTTPS
 
-Use this when you need separate backend/frontend runtime environments.
-
-## 8. Run Method 3: Publish with ngrok HTTPS
-
-### 8.1 Configuration
-
-The [ngrok.yml](ngrok.yml) file is configured with one tunnel for port 8000 and HTTPS-only publishing.
-
-Update token in [ngrok.yml](ngrok.yml):
+Update the token in [ngrok.yml](ngrok.yml):
 
 ```yaml
 authtoken: YOUR_NGROK_AUTHTOKEN
 ```
 
-Or set a global token once:
+Or set the token globally:
 
 ```powershell
 ngrok config add-authtoken YOUR_NGROK_AUTHTOKEN
 ```
 
-### 8.2 Run Steps
-
-Step 1, run the app:
+Then run both commands in parallel (two terminals):
 
 ```powershell
-conda activate cs116q21
-python main.py
-```
+# Terminal 1
+conda activate cs116q21 ; python main.py
 
-Step 2, open the tunnel:
-
-```powershell
+# Terminal 2
 ngrok start --all --config ngrok.yml
 ```
 
-Step 3, use the ngrok HTTPS URL to access/share the system.
+Use the HTTPS URL from ngrok to share the system publicly.
 
-## 9. User Workflow
+---
 
-1. Log in with an NHOMxx account
-2. Open Team to update member profiles and change password
-3. Open Submit to upload prediction files
-4. Open History to track status and metrics
-5. Open Dashboard to view rankings
+## 6. Testing Guide
 
-## 10. Admin Workflow
+### 6.1 Pre-test Checklist
 
-Admin can:
+- [ ] Environment installed successfully (Section 4)
+- [ ] Server is running and http://localhost:8000 loads
+- [ ] Admin has uploaded ground truth for both tasks (see Section 6.3)
 
-- View active teams and member information
-- View system-wide submission history
-- Reset team account passwords
-- Configure maximum submissions per day
-- Upload ground truth
-- Upload train data
-- Preview schema/sample data after train data upload
+### 6.2 Test Team User Flow (UI)
 
-Supported upload formats:
+1. Open http://localhost:8000
+2. Log in as `NHOM01` / `12345678`
+3. **Team page** → update member profiles, optionally change password
+4. **Submit page** → select a task, upload a prediction file (see Section 7 for formats)
+5. **History page** → monitor submission status: `pending` → `processing` → `done` or `error`
+6. **Dashboard page** → check the leaderboard and verify scores update correctly
 
-- Ground truth PIR: .json, .parquet
-- Ground truth Forecast: .csv, .parquet
-- Train data PIR: .json, .parquet
-- Train data Forecast: .csv, .parquet
+### 6.3 Test Admin Flow (UI)
 
-## 11. Main APIs
+1. Log in as `admin` / `admin123`
+2. **Upload ground truth** (required before testing submissions):
+   - Go to Admin → Ground Truth
+   - Upload PIR file: `.json` or `.parquet`
+   - Upload Forecast file: `.csv` or `.parquet`
+3. **Upload train data** (for teams to download):
+   - Go to Admin → Train Data
+   - Upload the corresponding file for each task
+4. **Team management:** view team list, reset passwords
+5. **Submission limit:** configure the maximum number of submissions per day
 
-Authentication and profile:
+### 6.4 Test API via Swagger UI
 
-- POST /api/auth/login
-- POST /api/auth/change-password
-- GET /api/teams/me
-- PUT /api/teams/me/profile
+Open http://localhost:8000/api/docs and follow these steps:
 
-Leaderboard and submissions:
+1. `POST /api/auth/login` → enter credentials → copy the `access_token`
+2. Click **Authorize** (lock icon, top right) → paste `Bearer <token>`
+3. Call any endpoint you want to test
 
-- GET /api/leaderboard/pir
-- GET /api/leaderboard/forecast
-- POST /api/submit/pir
-- POST /api/submit/forecast
-- GET /api/submissions
-- GET /api/submissions/{submission_id}/file
+### 6.5 Test API via PowerShell
 
-Admin:
+**Log in (get token):**
 
-- GET /api/admin/teams
-- GET /api/admin/submissions
-- POST /api/admin/teams/{team_id}/reset-password
-- GET /api/admin/settings/submission-limit
-- PUT /api/admin/settings/submission-limit
-- POST /api/admin/ground-truth/{task}
-- POST /api/admin/train-data/{task}
+```powershell
+$response = Invoke-RestMethod -Uri "http://localhost:8000/api/auth/login" `
+  -Method POST -ContentType "application/json" `
+  -Body '{"username":"NHOM01","password":"12345678"}'
+$token = $response.access_token
+```
 
-Data and health:
+**Submit a PIR file:**
 
-- GET /api/download/train/pir
-- GET /api/download/train/forecast
-- GET /api/health
+```powershell
+Invoke-RestMethod -Uri "http://localhost:8000/api/submit/pir" `
+  -Method POST `
+  -Headers @{ Authorization = "Bearer $token" } `
+  -Form @{ file = Get-Item ".\pir_submission.json" }
+```
 
-## 12. Quick Troubleshooting
+**Submit a Forecast file:**
 
-1. ModuleNotFoundError (fastapi/uvicorn)
+```powershell
+Invoke-RestMethod -Uri "http://localhost:8000/api/submit/forecast" `
+  -Method POST `
+  -Headers @{ Authorization = "Bearer $token" } `
+  -Form @{ file = Get-Item ".\forecast_submission.csv" }
+```
+
+**View submission history:**
+
+```powershell
+Invoke-RestMethod -Uri "http://localhost:8000/api/submissions" `
+  -Headers @{ Authorization = "Bearer $token" }
+```
+
+**View leaderboard (no login required):**
+
+```powershell
+Invoke-RestMethod -Uri "http://localhost:8000/api/leaderboard/pir"
+Invoke-RestMethod -Uri "http://localhost:8000/api/leaderboard/forecast"
+```
+
+---
+
+## 7. Submission File Formats
+
+### Task 1 — PIR (`.json`)
+
+A JSON object where each key is a `customer_id` (string) and each value is an ordered array of `item_id` strings. Order matters — it is used for Reciprocal Rank and MAP.
+
+```json
+{
+  "C001": ["I005", "I003", "I001", "I007"],
+  "C002": ["I002", "I006", "I004"],
+  "C003": ["I008", "I001", "I009", "I002", "I010"]
+}
+```
+
+> **Notes:**
+> - Only `customer_id` values that appear in the ground truth (i.e. have purchases in Jan 2026) are scored.
+> - Extra `customer_id` keys not present in the ground truth are silently ignored.
+
+### Task 2 — Forecast (`.csv`)
+
+CSV with exactly 3 required columns: `location`, `item_id`, `prediction`.
+
+```
+location,item_id,prediction
+S001,P001,120
+S001,P002,80
+S001,P004,50
+S002,P001,90
+S002,P002,110
+```
+
+> **Notes:**
+> - `prediction` must be a non-negative integer or float.
+> - Ground truth rows with `sale_status = 0` have `actual_quantity` forced to 0 (discontinued items). Predicting > 0 for discontinued items incurs a penalty.
+> - `(location, item_id)` pairs you predict but that are absent from the ground truth are scored with `actual_quantity = 0`.
+> - `(location, item_id)` pairs in the ground truth that you omit are scored with `prediction = 0`.
+
+---
+
+## 8. Scoring Formulas
+
+### Task 1 — PIR
+
+Computed over `eligible_customers` — only customers with at least one purchase in the ground truth:
+
+| Metric | Formula | Direction |
+|--------|---------|-----------|
+| **Precision@10** *(primary)* | $\frac{\|top10 \cap actual\|}{\min(10,\|actual\|)}$ | Higher is better |
+| MAP | $\frac{1}{N}\sum_{c} AP_c$ | Higher is better |
+| IOU | $\frac{\|pred \cap actual\|}{\|pred \cup actual\|}$ | Higher is better |
+| Reciprocal Rank | $\frac{1}{\text{rank of first hit}}$ | Higher is better |
+| Total Correct | $\sum_c \|pred_c \cap actual_c\|$ | Info only |
+
+Tiebreak order: Precision@10 → MAP → IOU → RR → Total Correct.
+
+### Task 2 — Forecast
+
+| Metric | Formula | Direction |
+|--------|---------|-----------|
+| **MAPE Sales** *(primary)* | $\frac{1}{N}\sum \text{ape}_i$ | Lower is better |
+| MAE Sales | $\frac{1}{N}\sum \|actual_i - pred_i\|$ | Lower is better |
+| MAPE Revenue | Same formula on `actual_qty × price` | Lower is better |
+| MAE Revenue | Same formula on `actual_qty × price` | Lower is better |
+
+**Per-row APE formula:**
+
+$$\text{ape}_i = \begin{cases} \text{skipped} & \text{if } actual_i = 0 \text{ and } pred_i = 0 \\ \dfrac{|actual_i - pred_i| + 1}{|actual_i| + 1} \times 100 & \text{if } actual_i = 0 \text{ and } pred_i \ne 0 \;\text{(smoothing)} \\ \dfrac{|actual_i - pred_i|}{|actual_i|} \times 100 & \text{if } actual_i \ne 0 \end{cases}$$
+
+Tiebreak order: MAPE Sales → MAE Sales → MAPE Revenue → MAE Revenue.
+
+---
+
+## 9. Ground Truth Format (Admin Upload)
+
+### PIR ground truth (`.json` or `.parquet`)
+
+**JSON format:**
+
+```json
+{
+  "C001": ["I001", "I003", "I005"],
+  "C002": ["I002", "I004", "I006"]
+}
+```
+
+**Parquet format:** columns `customer_id` + `item_id` (long/row-per-item format), or `customer_id` + `items` (list or comma-separated string).
+
+**Required filename:** `pir_ground_truth_jan_2026.json`
+
+### Forecast ground truth (`.csv` or `.parquet`)
+
+Must contain exactly these 5 columns:
+
+```
+location,item_id,actual_quantity,price,sale_status
+S001,P001,120,20000,1
+S001,P002,80,20000,1
+S001,P003,0,0,0
+```
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `location` | int/string | Store ID |
+| `item_id` | string | Product ID |
+| `actual_quantity` | int | Actual units sold |
+| `price` | float | Unit price (used for revenue metrics) |
+| `sale_status` | int | 1 = active, 0 = discontinued |
+
+**Required filename:** `forecast_ground_truth_jan_2026.csv`
+
+---
+
+## 10. API Reference
+
+### Auth & Profile
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| POST | `/api/auth/login` | Log in, returns JWT | None |
+| POST | `/api/auth/change-password` | Change password | Bearer |
+| GET | `/api/teams/me` | Current team info | Bearer |
+| PUT | `/api/teams/me/profile` | Update members / notes | Bearer |
+
+### Leaderboard & Submissions
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| GET | `/api/leaderboard/pir` | PIR leaderboard | None |
+| GET | `/api/leaderboard/forecast` | Forecast leaderboard | None |
+| POST | `/api/submit/pir` | Submit PIR file | Bearer |
+| POST | `/api/submit/forecast` | Submit Forecast file | Bearer |
+| GET | `/api/submissions` | Team's submission history | Bearer |
+| GET | `/api/submissions/{id}/file` | Download submitted file | Bearer |
+
+### Admin
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| GET | `/api/admin/teams` | List all teams | Admin |
+| GET | `/api/admin/submissions` | All submissions system-wide | Admin |
+| POST | `/api/admin/teams/{team_id}/reset-password` | Reset a team's password | Admin |
+| GET | `/api/admin/settings/submission-limit` | Get daily submission limit | Admin |
+| PUT | `/api/admin/settings/submission-limit` | Set daily submission limit | Admin |
+| POST | `/api/admin/ground-truth/{task}` | Upload ground truth | Admin |
+| POST | `/api/admin/train-data/{task}` | Upload train data | Admin |
+
+### Data & Health
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| GET | `/api/download/train/pir` | Download PIR train data | Bearer |
+| GET | `/api/download/train/forecast` | Download Forecast train data | Bearer |
+| GET | `/api/health` | Health check | None |
+
+---
+
+## 11. Submission Statuses
+
+| Status | Meaning |
+|--------|---------|
+| `pending` | File received, waiting to be scored |
+| `processing` | Scoring in progress |
+| `done` | Scoring complete, metrics available |
+| `error` | Validation or scoring failed — check `error_message` |
+
+---
+
+## 12. Troubleshooting
+
+**1. `ModuleNotFoundError` (fastapi / uvicorn / ...)**
 
 ```powershell
 conda activate cs116q21
 pip install -r requirements.txt
 ```
 
-2. npm is not recognized
+**2. `npm is not recognized`**
 
-- Install Node.js and open a new terminal.
+Install Node.js from https://nodejs.org and open a new terminal after installation.
 
-3. No module named backend
+**3. `No module named backend`**
 
-- Run commands from the project root, not inside the frontend folder.
+Run all commands from the project root, not from inside the `frontend/` folder.
 
-4. ngrok auth token error
+**4. Submissions always fail with "Ground truth not found"**
 
-- Check authtoken in [ngrok.yml](ngrok.yml)
-- Or run ngrok config add-authtoken
+The admin has not uploaded ground truth yet. Log in as admin → Admin page → upload the correct file with the correct filename.
 
-5. Frontend UI does not update
+**5. Swagger returns `401 Unauthorized`**
+
+Click **Authorize** in Swagger UI and enter `Bearer <token>` — include the `Bearer ` prefix.
+
+**6. Frontend does not reflect code changes**
 
 ```powershell
 cd frontend
 npm run build
 ```
 
-## 13. Important Data Paths
+**7. `passlib`/`bcrypt` error on startup**
 
-- Ground truth: [backend/ground_truth](backend/ground_truth)
-- Train data: [backend/train_data](backend/train_data)
-- Submission uploads: [backend/uploads](backend/uploads)
-- Database SQLite: [backend/ml_challenge.db](backend/ml_challenge.db)
+```powershell
+pip install --upgrade --force-reinstall bcrypt==4.0.1 passlib==1.7.4
+```
+
+**8. Reset the database to a clean state**
+
+```powershell
+Remove-Item backend\ml_challenge.db
+python main.py   # recreates the DB with default data
+```
+
+---
+
+## 13. Key Data Paths
+
+| Purpose | Path |
+|---------|------|
+| Ground truth | [backend/ground_truth/](backend/ground_truth/) |
+| Train data | [backend/train_data/](backend/train_data/) |
+| Team uploads | [backend/uploads/](backend/uploads/) |
+| SQLite database | `backend/ml_challenge.db` |
+| Frontend build | `frontend/dist/` |
