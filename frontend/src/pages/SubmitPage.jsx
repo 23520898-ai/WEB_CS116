@@ -3,6 +3,36 @@ import { useNavigate } from "react-router-dom";
 
 import { getMyTeam, submitForecast, submitPir } from "../services/api";
 
+function ErrorMessageBox({ message, onClose }) {
+  if (!message) return null;
+  return (
+    <div style={{
+      position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)",
+      display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000,
+    }}>
+      <div style={{
+        background: "#fff", borderRadius: "8px", padding: "28px 32px",
+        maxWidth: "420px", width: "90%", boxShadow: "0 8px 32px rgba(0,0,0,0.18)",
+        textAlign: "center",
+      }}>
+        <div style={{ fontSize: "2rem", marginBottom: "12px" }}>⚠️</div>
+        <p style={{ margin: "0 0 20px", color: "#721c24", fontWeight: 500, lineHeight: 1.5 }}>
+          {message}
+        </p>
+        <button
+          onClick={onClose}
+          style={{
+            padding: "8px 32px", background: "#dc3545", color: "#fff",
+            border: "none", borderRadius: "5px", cursor: "pointer", fontWeight: 600,
+          }}
+        >
+          OK
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function SubmitPage({ token }) {
   const [task, setTask] = useState("pir");
   const [file, setFile] = useState(null);
@@ -15,7 +45,7 @@ function SubmitPage({ token }) {
   useEffect(() => {
     getMyTeam(token)
       .then(setTeamInfo)
-      .catch((e) => setError(e.message));
+      .catch(() => {});
   }, [token]);
 
   const onSubmit = async (e) => {
@@ -41,29 +71,36 @@ function SubmitPage({ token }) {
     }
   };
 
-  const remain = teamInfo?.remaining_submissions_today ?? "-";
-
   return (
     <section className="panel form-panel">
       <h2>Submit File</h2>
-      <p>Remaining submissions today: {remain}</p>
+
+      <ErrorMessageBox message={error} onClose={() => setError("")} />
+
       <form onSubmit={onSubmit}>
         <label>
-          Select task
-          <select value={task} onChange={(e) => setTask(e.target.value)}>
+          <span style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+            <span>Select task</span>
+            <span style={{ fontSize: "0.82rem", color: "var(--muted)", fontWeight: 500 }}>
+              Còn lại hôm nay: <strong style={{ color: "var(--text)" }}>{task === "pir" ? (teamInfo?.pir_remaining_today ?? "-") : (teamInfo?.forecast_remaining_today ?? "-")}</strong>
+            </span>
+          </span>
+          <select value={task} onChange={(e) => { setTask(e.target.value); setFile(null); }}>
             <option value="pir">Task 1 - PIR (JSON)</option>
             <option value="forecast">Task 2 - Forecast (CSV)</option>
           </select>
         </label>
 
         <label className="dropzone">
-          <span>Drag and drop a file here, or click to browse</span>
           <input
             type="file"
             accept={task === "pir" ? ".json" : ".csv"}
             onChange={(e) => setFile(e.target.files?.[0] || null)}
           />
-          <strong>{file ? file.name : "No file selected"}</strong>
+          {file
+            ? <strong>{file.name}</strong>
+            : <span style={{ color: "#888" }}>No file selected</span>
+          }
         </label>
 
         <button type="submit" disabled={loading}>
@@ -71,7 +108,6 @@ function SubmitPage({ token }) {
         </button>
       </form>
       {message && <p className="success">{message}</p>}
-      {error && <p className="error">{error}</p>}
     </section>
   );
 }

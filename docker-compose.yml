@@ -17,6 +17,6 @@ services:
       - ./:/app
     command: sh -c "npm install && npm start"
     ports:
-      - "3000:3000"
+      - "11621:11621"
     depends_on:
       - backend

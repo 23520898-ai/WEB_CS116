@@ -9,6 +9,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, FastAPI, File, HTTPExce
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from backend.auth import create_access_token, get_current_user, get_db, verify_password
@@ -93,6 +94,22 @@ def _today_limit_row(db: Session, team_id: int) -> DailyLimit:
         db.commit()
         db.refresh(limit_row)
     return limit_row
+
+
+def _today_task_counts(db: Session, team_id: int) -> dict:
+    """Return today's submission counts split by task."""
+    today_start = datetime.combine(date.today(), datetime.min.time())
+    pir = db.query(func.count(Submission.id)).filter(
+        Submission.team_id == team_id,
+        Submission.task == "pir",
+        Submission.submitted_at >= today_start,
+    ).scalar() or 0
+    forecast = db.query(func.count(Submission.id)).filter(
+        Submission.team_id == team_id,
+        Submission.task == "forecast",
+        Submission.submitted_at >= today_start,
+    ).scalar() or 0
+    return {"pir": pir, "forecast": forecast}
 
 
 def _get_submission_limit(db: Session) -> int:
@@ -309,6 +326,7 @@ def get_team_me(current_user: User = Depends(get_current_user), db: Session = De
     limit_row = _today_limit_row(db, current_user.team_id)
     submission_limit_per_day = _get_submission_limit(db)
 
+    task_counts = _today_task_counts(db, current_user.team_id)
     return TeamMeResponse(
         id=team.id,
         name=team.name,
@@ -320,6 +338,10 @@ def get_team_me(current_user: User = Depends(get_current_user), db: Session = De
         submission_limit_per_day=submission_limit_per_day,
         submissions_today=limit_row.count,
         remaining_submissions_today=max(0, submission_limit_per_day - limit_row.count),
+        pir_submissions_today=task_counts["pir"],
+        forecast_submissions_today=task_counts["forecast"],
+        pir_remaining_today=max(0, submission_limit_per_day - task_counts["pir"]),
+        forecast_remaining_today=max(0, submission_limit_per_day - task_counts["forecast"]),
     )
 
 
@@ -358,6 +380,7 @@ def update_team_profile(
     limit_row = _today_limit_row(db, current_user.team_id)
     submission_limit_per_day = _get_submission_limit(db)
 
+    task_counts = _today_task_counts(db, current_user.team_id)
     return TeamMeResponse(
         id=team.id,
         name=team.name,
@@ -369,6 +392,10 @@ def update_team_profile(
         submission_limit_per_day=submission_limit_per_day,
         submissions_today=limit_row.count,
         remaining_submissions_today=max(0, submission_limit_per_day - limit_row.count),
+        pir_submissions_today=task_counts["pir"],
+        forecast_submissions_today=task_counts["forecast"],
+        pir_remaining_today=max(0, submission_limit_per_day - task_counts["pir"]),
+        forecast_remaining_today=max(0, submission_limit_per_day - task_counts["forecast"]),
     )
 
 

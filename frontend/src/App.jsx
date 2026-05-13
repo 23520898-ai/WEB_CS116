@@ -13,6 +13,7 @@ import {
   getLeaderboardPir,
   getMyTeam,
   login,
+  changePassword,
 } from "./services/api";
 
 import AdminPage from "./pages/AdminPage";
@@ -27,6 +28,10 @@ function ProtectedLayout({ token, me, onLogout }) {
   const location = useLocation();
   const navigate = useNavigate();
   const [submittedGroupCount, setSubmittedGroupCount] = useState(0);
+  const [showChangePw, setShowChangePw] = useState(false);
+  const [pwCurrent, setPwCurrent] = useState("");
+  const [pwNew, setPwNew] = useState("");
+  const [pwMsg, setPwMsg] = useState({ text: "", ok: false });
 
   useEffect(() => {
     if (!token) {
@@ -72,53 +77,82 @@ function ProtectedLayout({ token, me, onLogout }) {
     navItems.push({ to: "/admin", label: "Admin" });
   }
 
-  const pageTitleMap = {
-    "/": "Machine Learning Portal",
-    "/submit": "Submit Predictions",
-    "/history": "Submission History",
-    "/docs": "Usage Documentation",
-    "/admin": "Admin Center",
-  };
-
-  const currentTitle = pageTitleMap[location.pathname] || "CS116 Portal";
-
   if (!token) return <Navigate to="/login" replace />;
 
   return (
     <div className="app-canvas">
       <div className="app-shell">
         <aside className="sidebar">
-          <img src={logoUIT} alt="UIT Logo" style={{ width: "100%", maxWidth: "100px", marginBottom: "1rem", alignSelf: "center", display: "block" }} />
-
-          <div className="user-info">
-            <div className="user-avatar">
-              {me?.name?.substring(0, 2).toUpperCase() || "??"}
-            </div>
-            <div className="user-details">
-              <span className="user-name">{me?.name || "Loading..."}</span>
-            </div>
-          </div>
+          <h2>CS116</h2>
 
           <nav>
             {navItems.map((item) => (
-              <NavLink key={item.to} to={item.to} className="nav-link">
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.to === "/"}
+                className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}
+              >
                 {item.label}
               </NavLink>
             ))}
           </nav>
 
-          <button className="logout-btn" onClick={onLogout}>Logout</button>
+          <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+            <button onClick={onLogout}>Logout</button>
+
+            <button
+              onClick={() => { setShowChangePw((v) => !v); setPwMsg({ text: "", ok: false }); }}
+              style={{ background: "transparent", color: "var(--muted)", boxShadow: "none", border: "1px solid var(--line)", fontSize: "0.8rem", padding: "0.45rem 0.7rem" }}
+            >
+              {showChangePw ? "✕ Cancel" : "Change Password"}
+            </button>
+
+            {showChangePw && (
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  try {
+                    await changePassword(pwCurrent, pwNew, token);
+                    setPwMsg({ text: "Password updated!", ok: true });
+                    setPwCurrent("");
+                    setPwNew("");
+                    setTimeout(() => setShowChangePw(false), 1500);
+                  } catch (err) {
+                    setPwMsg({ text: err.message, ok: false });
+                  }
+                }}
+                style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}
+              >
+                <input
+                  type="password"
+                  placeholder="Current password"
+                  value={pwCurrent}
+                  onChange={(e) => setPwCurrent(e.target.value)}
+                  required
+                  style={{ fontSize: "0.8rem", padding: "0.4rem 0.6rem" }}
+                />
+                <input
+                  type="password"
+                  placeholder="New password"
+                  value={pwNew}
+                  onChange={(e) => setPwNew(e.target.value)}
+                  required
+                  minLength={8}
+                  style={{ fontSize: "0.8rem", padding: "0.4rem 0.6rem" }}
+                />
+                <button type="submit" style={{ fontSize: "0.8rem", padding: "0.45rem" }}>Update</button>
+                {pwMsg.text && (
+                  <p style={{ margin: 0, fontSize: "0.75rem", color: pwMsg.ok ? "var(--success)" : "var(--danger)", fontWeight: 600 }}>
+                    {pwMsg.text}
+                  </p>
+                )}
+              </form>
+            )}
+          </div>
         </aside>
 
         <main className="content">
-          <header className="content-head">
-            <h1>{currentTitle}</h1>
-
-            <button onClick={() => navigate("/submit")}>
-              Upload new file
-            </button>
-          </header>
-
           <Routes>
             <Route path="/" element={<DashboardPage token={token} me={me} />} />
             <Route path="/submit" element={<SubmitPage token={token} />} />
@@ -139,22 +173,30 @@ function ProtectedLayout({ token, me, onLogout }) {
 
         <aside className="right-rail">
           <h3>Quick Stats</h3>
-          <div className="stat-card">
-            <p>Bài nộp hôm nay</p>
-            <strong>{me?.submissions_today ?? 0}</strong>
-          </div>
-          <div className="stat-card">
-            <p>Lượt còn lại</p>
-            <strong>{me?.remaining_submissions_today ?? 0}</strong>
-          </div>
-          <div className="stat-card">
-            <p>Nhóm đã nộp</p>
-            <strong>{submittedGroupCount}</strong>
-          </div>
-          <div className="stat-card">
-            <p>Giới hạn mỗi ngày</p>
-            <strong>{me?.submission_limit_per_day ?? 3}</strong>
-          </div>
+          {me?.current_user_role === "admin" ? (
+            <div className="stat-card">
+              <p>Nhóm đã nộp</p>
+              <strong>{submittedGroupCount}</strong>
+            </div>
+          ) : (
+            <>
+              <div className="stat-card">
+                <p>Nhóm</p>
+                <strong>{me?.name ?? "—"}</strong>
+              </div>
+              <div className="stat-card">
+                <p>Bài nộp hôm nay</p>
+                <strong>{me?.submissions_today ?? 0}</strong>
+              </div>              <div className="stat-card">
+                <p>Lượt còn lại (Task 1 - PIR)</p>
+                <strong>{me?.pir_remaining_today ?? "—"}</strong>
+              </div>
+              <div className="stat-card">
+                <p>Lượt còn lại (Task 2 - Forecast)</p>
+                <strong>{me?.forecast_remaining_today ?? "—"}</strong>
+              </div>
+            </>
+          )}
         </aside>
       </div>
     </div>
@@ -165,7 +207,7 @@ function App() {
   const [token, setToken] = useState(localStorage.getItem("ml_token") || "");
   const [me, setMe] = useState(null);
   const [error, setError] = useState("");
-  const navigate = useNavigate(); // Thêm navigate ở đây
+  const navigate = useNavigate(); 
 
   useEffect(() => {
     if (!token) {
@@ -179,6 +221,11 @@ function App() {
         localStorage.removeItem("ml_token");
         setToken("");
       });
+
+    const timer = setInterval(() => {
+      getMyTeam(token).then(setMe).catch(() => {});
+    }, 10000);
+    return () => clearInterval(timer);
   }, [token]);
 
   const onLogin = async (username, password) => {
@@ -186,7 +233,7 @@ function App() {
       const res = await login(username, password);
       localStorage.setItem("ml_token", res.access_token);
       setToken(res.access_token);
-      navigate("/"); // Chuyển hướng sau khi login
+      navigate("/"); 
     } catch (e) {
       setError(e.message);
     }
@@ -196,7 +243,7 @@ function App() {
     localStorage.removeItem("ml_token");
     setToken("");
     setMe(null);
-    navigate("/login"); // FIX: Chuyển hướng ngay lập tức về trang login
+    navigate("/login"); 
   };
 
   return (
