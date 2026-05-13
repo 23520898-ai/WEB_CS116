@@ -1,5 +1,5 @@
 version: "2"
-authtoken: YOUR_NGROK_AUTHTOKEN
+authtoken: 3DDnUE0U7JM6f2HUrkLVetG3LSY_xJex4qLRifEvXPao6TL1
 
 # Start with: ngrok start --all --config ngrok.yml
 tunnels:
