@@ -13,3 +13,5 @@ backend/ground_truth/
 backend/ml_challenge.db
 .env
 .DS_Store
+backend.log
+
